@@ -68,7 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
                     configureTermuxTaskerPreference(context);
                     configureTermuxWidgetPreference(context);
                     configureAboutPreference(context);
-                    configureDonatePreference(context);
+                    // shiroikuma-termux: no donate row — the fork is not the upstream project (root_preferences.xml keeps it invisible).
                 }
             }.start();
         }

@@ -1,4 +1,4 @@
-Termux is a terminal emulator application enhanced with a large set of command line utilities ported to Android OS. The main goal is to bring a Linux command line experience to users of mobile devices with no rooting or other special setup required.
+白い熊 Termux is 白い熊's fork of Termux (https://github.com/ShiroiKuma0/shiroikuma-termux), a terminal emulator application enhanced with a large set of command line utilities ported to Android OS. The main goal is to bring a Linux command line experience to users of mobile devices with no rooting or other special setup required.
 
 * Enjoy the Bash and Zsh shells.
 * Edit files with nano and vim.

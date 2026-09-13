@@ -1,3 +1,24 @@
+# 白い熊 Termux
+
+**白い熊's fork of [Termux](https://github.com/termux/termux-app)** — the Android terminal emulator and
+Linux environment — with our name, our icon and our links; the app id stays **`com.termux`** (same
+package prefix, same shared UID as `termux-api`, `termux-x11`, `termux-gui` and 白い熊 GNU Emacs), so
+it installs **in place of** upstream Termux, signed with our own key. Tracks upstream's `master` tip;
+the version pins the upstream commit it is built on
+(`<upstream>+<base date>.<HH-MM>.g<sha>+<build>`).
+
+- Repository: https://github.com/ShiroiKuma0/shiroikuma-termux
+- Releases (APK downloads): https://github.com/ShiroiKuma0/shiroikuma-termux/releases
+- Issues: https://github.com/ShiroiKuma0/shiroikuma-termux/issues
+- Sister forks: [shiroikuma-termux-api](https://github.com/ShiroiKuma0/shiroikuma-termux-api),
+  [shiroikuma-termux-x11](https://github.com/ShiroiKuma0/shiroikuma-termux-x11),
+  [shiroikuma-termux-gui](https://github.com/ShiroiKuma0/shiroikuma-termux-gui),
+  [shiroikuma-emacs](https://github.com/ShiroiKuma0/shiroikuma-emacs)
+
+Upstream's README follows unchanged.
+
+***
+
 # Termux application
 
 [![Build status](https://github.com/termux/termux-app/workflows/Build/badge.svg)](https://github.com/termux/termux-app/actions)
