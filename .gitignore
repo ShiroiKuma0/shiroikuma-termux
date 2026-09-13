@@ -37,3 +37,13 @@ local.properties
 .swp
 ehthumbs.db
 Thumbs.db
+
+### shiroikuma-termux fork ###
+# Release signing: the credentials and the key itself never enter git. (Upstream's own
+# app/testkey_untrusted.jks is already tracked, and gitignore never touches a tracked file.)
+/keystore.properties
+*.jks
+# Agent config is committed (CLAUDE.md, .claude/skills/); only the machine-local settings are not.
+/.claude/settings.local.json
+# Agent working files: generator scripts, intermediate data, throwaway exports.
+/.scratch/

@@ -1,0 +1,170 @@
+// --- shiroikuma-termux fork: version pin, release signing, buildFork ------------------------------
+//
+// Applied by the LAST line of app/build.gradle (`apply from: 'shiroikuma.gradle'`) — deliberately
+// after upstream's whole `android { }` block has evaluated, because upstream runs
+// `validateVersionName(versionName)` inline inside defaultConfig with a strict SemVer regex that
+// allows ONE `+`; the house form below carries two. Running afterwards, we read upstream's literals
+// (`versionCode 118` / `versionName "0.118.0"`) and overwrite the two fields with our derived pair.
+// Nothing in app/build.gradle itself is edited beyond that one `apply` line, so a rebase never
+// conflicts here. See CLAUDE.md → "Versioning & APK naming" and .claude/skills/build-apk/SKILL.md.
+
+// --- per-build counter (gradle.properties) -------------------------------------------------------
+// N = BUILD_NUMBER, bumped by `buildFork` after every successful build. It runs MONOTONICALLY and
+// is never reset merely because a sync moved the `.g<sha>` pin — an installer compares versionCode
+// alone, and upstream's `versionCode 118` stands still for months on master. Zero-padded to three
+// digits in the NAME only (so +002 sorts before +010); versionCode keeps the plain integer.
+def forkBuildNumber = (project.findProperty('BUILD_NUMBER') ?: '1').toString().trim().toInteger()
+def forkPaddedBuildNumber = String.format('%03d', forkBuildNumber)
+def forkLastBuiltVersionCode = (project.findProperty('LAST_BUILT_VERSION_CODE') ?: '0').toString().trim().toInteger()
+
+// --- upstream-base pin (see the global git-versioning skill) -------------------------------------
+// `custom` is rebased onto every upstream commit (Upstream tracking: git), so upstream's versionName
+// says nothing about how current we are. The pin is the merge-base of HEAD and master (the upstream
+// mirror branch) — the upstream commit our patches sit on. NOT our own HEAD (that is what +NNN
+// already says) and NOT master's tip (which overstates it whenever master has been fast-forwarded
+// but custom not yet rebased).
+//
+// providers.exec, NOT a raw process: a process started at configuration time is refused outright
+// under Gradle's configuration cache, and the provider API registers the git output as a cache
+// input so the pin re-resolves when the base moves. ignoreExitValue so a repo with no local
+// `master` (shallow clone, tarball) degrades to an empty pin rather than failing the build.
+def forkRepoRoot = project.rootDir
+def forkGit = { String... command ->
+    try {
+        providers.exec {
+            commandLine(command)
+            workingDir = forkRepoRoot
+            ignoreExitValue = true
+        }.standardOutput.asText.get().trim()
+    } catch (Exception e) {
+        println("Git command [${command.join(' ')}] failed [$e]")
+        ''
+    }
+}
+
+def upstreamBaseSha = forkGit('git', 'merge-base', 'HEAD', 'master').take(8)
+
+// That same commit's COMMITTER date, so versions sort chronologically — a bare sha orders them at
+// random. In UTC, formatted from the raw epoch: the commit's own zone and the build host's zone both
+// misstate the hour, and minute resolution puts that error in plain sight.
+def upstreamBaseStamp = ''
+if (upstreamBaseSha.length() == 8) {
+    def epoch = forkGit('git', 'show', '-s', '--format=%ct', upstreamBaseSha)
+    if (epoch ==~ /\d+/) {
+        upstreamBaseStamp = java.time.Instant.ofEpochSecond(epoch.toLong())
+                .atZone(java.time.ZoneOffset.UTC)
+                .format(java.time.format.DateTimeFormatter.ofPattern('yyyy-MM-dd.HH-mm'))
+    }
+}
+
+// `+` opens each top-level group; the pin's own date, time and sha are dot-joined inside it.
+def upstreamPin = ''
+if (upstreamBaseSha.length() == 8) {
+    upstreamPin = upstreamBaseStamp.length() == 16
+            ? "+${upstreamBaseStamp}.g${upstreamBaseSha}"
+            : "+g${upstreamBaseSha}"
+}
+
+// --- derive our version from upstream's literals (read, never edited) ----------------------------
+//   versionName = "<upstream name>+<base date>.<HH-MM>.g<sha8>+<BUILD_NUMBER padded to 3>"
+//                                 e.g. 0.118.0+2026-09-11.22-27.g45844885+001
+//   versionCode = <upstream code> * 10000 + BUILD_NUMBER               e.g. 118 * 10000 + 1 = 1180001
+def upstreamVersionName = android.defaultConfig.versionName
+def upstreamVersionCode = android.defaultConfig.versionCode
+def forkVersionName = "${upstreamVersionName}${upstreamPin}+${forkPaddedBuildNumber}".toString()
+def forkVersionCode = upstreamVersionCode * 10000 + forkBuildNumber
+android.defaultConfig.versionName = forkVersionName
+android.defaultConfig.versionCode = forkVersionCode
+
+// --- release signing (gitignored keystore.properties; see the build-apk skill) -------------------
+// Upstream's `release` buildType has no signingConfig at all (F-Droid signs their builds). We sign
+// from keystore.properties → the ONE keystore of the whole com.termux shared-UID family
+// (~/.android-keystores/shiroikuma-emacs-termux.jks, alias "Emacs keystore"). Absent the file, the
+// release build stays unsigned like upstream's — `assembleRelease` still works for toolchain tests,
+// but `buildFork` refuses to run (below).
+def forkKeystorePropertiesFile = rootProject.file('keystore.properties')
+if (forkKeystorePropertiesFile.exists()) {
+    def forkKeystoreProperties = new Properties()
+    forkKeystorePropertiesFile.withInputStream { forkKeystoreProperties.load(it) }
+    android.signingConfigs.create('release') {
+        storeFile rootProject.file(forkKeystoreProperties.getProperty('storeFile'))
+        storePassword forkKeystoreProperties.getProperty('storePassword')
+        keyAlias forkKeystoreProperties.getProperty('keyAlias')
+        keyPassword forkKeystoreProperties.getProperty('keyPassword')
+    }
+    android.buildTypes.release.signingConfig = android.signingConfigs.release
+}
+
+// --- bootstrap zips before ndk-build -------------------------------------------------------------
+// Upstream hooks its `downloadBootstraps` task onto javaCompile only, but the zips are `.incbin`ed
+// by src/main/cpp/termux-bootstrap-zip.S, and Gradle is free to schedule `buildNdkBuildRelease[*]`
+// before javaCompile — a clean checkout (or anything after `./gradlew clean`, which deletes the
+// zips) then dies with "Could not find incbin file 'bootstrap-aarch64.zip'". Make the native build
+// wait for the download as well. configureEach so AGP's lazily created C/C++ tasks are covered.
+tasks.configureEach { task ->
+    if (task.name.startsWith('buildNdkBuild')) {
+        task.dependsOn(tasks.named('downloadBootstraps'))
+    }
+}
+
+// --- buildFork -----------------------------------------------------------------------------------
+// Build the signed release APK (universal — TERMUX_SPLIT_APKS_FOR_RELEASE_BUILDS is unset), copy it
+// to ~/tmp under the house filename, then bump BUILD_NUMBER and record the code we just shipped.
+// Every guard runs BEFORE the (long) native build, from the task graph, not from doFirst.
+def forkApkName = "shiroikuma-termux_${forkVersionName}_universal.apk".toString()
+def forkReleaseApkDir = layout.buildDirectory.dir('outputs/apk/release')
+def forkPropsFile = rootProject.file('gradle.properties')
+def forkUserHome = System.getProperty('user.home')
+
+def buildForkTask = tasks.register('buildFork') {
+    group = 'build'
+    description = 'Build the signed release APK, copy it to ~/tmp, and bump BUILD_NUMBER.'
+    dependsOn 'assembleRelease'
+
+    doLast {
+        def outputDir = forkReleaseApkDir.get().asFile
+        def apks = outputDir.listFiles({ File d, String n -> n.endsWith('.apk') } as FilenameFilter) ?: new File[0]
+        // Prefer the universal APK by name; with splits off it is the only one there anyway.
+        def apk = apks.find { it.name.contains('universal') } ?: apks.find()
+        if (apk == null) throw new GradleException("No APK found in $outputDir")
+
+        def targetDir = new File(forkUserHome, 'tmp')
+        targetDir.mkdirs()
+        def target = new File(targetDir, forkApkName)
+        target.bytes = apk.bytes
+        println("[1;36m>>> ${target.absolutePath}[0m")
+        println("[1;36m>>> versionCode ${forkVersionCode}[0m")
+
+        def text = forkPropsFile.text
+        text = text.replaceFirst(/(?m)^BUILD_NUMBER=\d+$/, "BUILD_NUMBER=${forkBuildNumber + 1}")
+        text = text.replaceFirst(/(?m)^LAST_BUILT_VERSION_CODE=\d+$/, "LAST_BUILT_VERSION_CODE=${forkVersionCode}")
+        forkPropsFile.text = text
+        println("[1;36m>>> BUILD_NUMBER bumped to ${forkBuildNumber + 1}[0m")
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    if (!graph.hasTask(buildForkTask.get())) return
+
+    // Fail fast — before ndk-build and R8 spend ten minutes — rather than shipping an unsigned APK
+    // that Android would refuse to install over the signed one.
+    if (!forkKeystorePropertiesFile.exists()) {
+        throw new GradleException(
+                "keystore.properties is missing at ${forkKeystorePropertiesFile} — buildFork refuses to " +
+                        "produce an unsigned release. Copy keystore.properties_sample and fill in the " +
+                        "shiroikuma-emacs-termux.jks credentials (see CLAUDE.md → Signing).")
+    }
+
+    // `master` tracks bleeding upstream/master, whose versionCode stands still between releases —
+    // so BUILD_NUMBER never resets. This guard turns the one way that could still go backwards (a
+    // hand-edited counter) into a build failure rather than a silent downgrade the installer would
+    // refuse.
+    if (forkVersionCode <= forkLastBuiltVersionCode) {
+        throw new GradleException(
+                "versionCode $forkVersionCode would not exceed the highest already built " +
+                        "($forkLastBuiltVersionCode). Raise BUILD_NUMBER past the last built tail.")
+    }
+}
+
+// Printed once per configuration so a build log always says what it is producing.
+println("[1;36m>>> shiroikuma-termux ${forkVersionName} (versionCode ${forkVersionCode})[0m")

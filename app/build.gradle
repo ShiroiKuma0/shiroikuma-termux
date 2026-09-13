@@ -241,3 +241,5 @@ afterEvaluate {
         variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
     }
 }
+
+apply from: 'shiroikuma.gradle' // shiroikuma-termux fork: version pin, signing, buildFork — must stay the LAST line
