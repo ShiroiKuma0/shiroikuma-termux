@@ -4,6 +4,19 @@ This file carries the history of **白い熊 Termux** — 白い熊's fork of [T
 
 Versions are `<upstream version>+<upstream base date>.<HH-MM>.g<sha8>+<NNN>`: `custom` is rebased onto every commit of upstream's `master`, and the pin names the upstream commit the release is built on; `versionCode` = upstream code × 10000 + N. Every release section states its upstream base, then what is built on top of stock; sections after the first are per-release deltas and carry an "Upstream since" subsection distilled from the sync(s) that moved the base.
 
+## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+008 — 2026-09-13
+
+Built on the same upstream base as +006 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180008`. Changes since +006:
+
+### UI & theming
+- **Text-selection toolbar in the house look.** The COPY · PASTE · MORE… bar over a selection is now our own `ShiroikumaSelectionToolbar` — a black bar with yellow text and border, following the Menus rows of the UI page (`menu_bg`, `menu_text`, `menu_border_color`, `menu_border_dp`, `menu_corner_dp`) — instead of the platform floating toolbar, which cannot be themed (it re-wraps the window context in `Theme.DeviceDefault` and takes only light/dark from the app). It behaves as before: hides while a handle is dragged, follows the selection as it moves or scrolls, sits above the selection when there is room and below it otherwise, never under the keyboard; PASTE is dimmed while the clipboard is empty. Implemented as an `ActionMode` of ours over a non-focusable `PopupWindow` one window layer above the selection handles, installed through a small factory seam in `terminal-view`'s `TextSelectionCursorController` (`setFloatingActionModeFactory`), so upstream's selection logic is untouched.
+- **Settings screens in yellow.** Every activity except the terminal one — Settings and all its sub-screens, Help, About / Report, the widget's shortcut picker, the float permission page — now receives `ThemeOverlay.Shiroikuma.Secondary` from `ShiroikumaLifecycle`: pure black ground (was Material's dark grey), yellow titles, dim-yellow summaries, yellow switches and category headings.
+- **「Show side menu」** is the first row of the terminal's context menu (the one MORE… opens, also reached by a right-click or the menu key): it opens the left sessions drawer, so the drawer no longer depends on an edge swipe that gesture navigation fights over.
+
+### Build pipeline
+- **Our `termux-shared` for the sister forks.** `./gradlew publishReleasePublicationToMavenLocal` now publishes this repo's `termux-shared` (+ `terminal-view`, `terminal-emulator`) to `~/.m2` as `com.termux:termux-shared:0.118.0-sk1` — 白い熊 names and links in `TermuxConstants`, the absorbed-plugin preference lookups — for shiroikuma-termux-api to build against instead of upstream's JitPack artifact. A one-line `apply from: 'shiroikuma.gradle'` at the end of each of the three library modules re-labels upstream's `release` publication to `SHIROIKUMA_TERMUX_SHARED_VERSION` (`gradle.properties`); upstream's literal `0.118.0` stays untouched.
+- Docs: the bundled colour-scheme count corrected to 114 + the house scheme; the sync skill's post-rebase checklist gained the `terminal-view` seam.
+
 ## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+006 — 2026-09-13
 
 First release. Built on **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (committed 2026-09-11 22:27 UTC / 2026-09-12 local; upstream `versionCode 118` / `versionName 0.118.0`, months past the 0.118.x store releases — Sixel/iTerm images, the 100 KB OSC 52 clipboard buffer, the multi-window margin flicker fix are all in). `versionCode 1180006`. Everything below is added on top of upstream.
