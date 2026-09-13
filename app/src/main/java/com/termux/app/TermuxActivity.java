@@ -43,6 +43,8 @@ import com.termux.app.activities.HelpActivity;
 import com.termux.app.activities.SettingsActivity;
 import com.termux.shared.termux.crash.TermuxCrashUtils;
 import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
+import com.termux.shiroikuma.ui.ShiroikumaChrome;
+import com.termux.shiroikuma.ui.ShiroikumaUiActivity;
 import com.termux.app.terminal.TermuxSessionsListViewController;
 import com.termux.app.terminal.io.TerminalToolbarViewPager;
 import com.termux.app.terminal.TermuxTerminalViewClient;
@@ -250,6 +252,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         setNewSessionButtonView();
 
         setToggleKeyboardView();
+
+        ShiroikumaChrome.apply(this); // shiroikuma-termux: house look of drawer / extra keys (Phase 4)
 
         registerForContextMenu(mTerminalView);
 
@@ -568,6 +572,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         settingsButton.setOnClickListener(v -> {
             ActivityUtils.startActivity(this, new Intent(this, SettingsActivity.class));
         });
+        settingsButton.setOnLongClickListener(v -> { ShiroikumaUiActivity.open(this); return true; }); // shiroikuma-termux: 白い熊 Termux UI
     }
 
     private void setNewSessionButtonView() {
@@ -684,7 +689,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 showKillSessionDialog(session);
                 return true;
             case CONTEXT_MENU_STYLING_ID:
-                showStylingDialog();
+                ShiroikumaUiActivity.open(this); // shiroikuma-termux: the absorbed Termux:Styling — our page, not the plugin
                 return true;
             case CONTEXT_MENU_TOGGLE_KEEP_SCREEN_ON:
                 toggleKeepScreenOn();
@@ -831,6 +836,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     public void setExtraKeysView(ExtraKeysView extraKeysView) {
         mExtraKeysView = extraKeysView;
+        ShiroikumaChrome.applyExtraKeys(this, extraKeysView); // shiroikuma-termux: colours + per-button styling before the first reload()
     }
 
     public DrawerLayout getDrawer() {
@@ -966,6 +972,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     private void reloadActivityStyling(boolean recreateActivity) {
+        ShiroikumaChrome.apply(this); // shiroikuma-termux: before mExtraKeysView.reload() so the rebuilt buttons are born with the new colours
         if (mProperties != null) {
             reloadProperties();
 

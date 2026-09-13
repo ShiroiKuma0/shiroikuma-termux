@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4): the 38 dp swatch on the right of a colour row — filled in code by
+     ShiroikumaPreference (current colour, 1.5 dp yellow stroke, 4 dp radius). -->
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/color_swatch"
+    android:layout_width="38dp"
+    android:layout_height="38dp"
+    android:layout_gravity="center" />

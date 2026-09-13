@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4c): Termux:Float's dimens.xml (the minimized bubble's outline). -->
+<resources>
+    <dimen name="bubble_outline_stroke_width">1dp</dimen>
+</resources>

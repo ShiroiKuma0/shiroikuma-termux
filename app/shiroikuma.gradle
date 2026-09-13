@@ -95,6 +95,25 @@ if (forkKeystorePropertiesFile.exists()) {
     android.buildTypes.release.signingConfig = android.signingConfigs.release
 }
 
+// --- Phase 4b: the backup engine's tar/zip library ----------------------------------------------
+// Apache Commons Compress writes the `data/home.tar` / `data/usr.tar` members of a backup ZIP in
+// Java (POSIX long names + big numbers, symlinks, hard links) — the prefix's own `tar` cannot be
+// used, because restoring `usr` with a tar that lives inside `usr` is circular and a wiped phone
+// has no `usr` at all. Declared here rather than in app/build.gradle so a rebase never conflicts;
+// the three optional codecs it can reach for (xz, zstd, brotli) are `-dontwarn`ed in
+// app/proguard-rules.pro. See app/src/main/java/com/termux/shiroikuma/backup/.
+dependencies {
+    implementation 'org.apache.commons:commons-compress:1.27.1'
+
+    // Phase 4c: the absorbed Termux:Widget's Device Controls provider (com.termux.widget
+    // .TermuxWidgetControlsProviderService, Android 11+ power-menu controls) publishes its controls
+    // through java.util.concurrent.Flow via the reactive-streams bridge, exactly as upstream
+    // termux-widget's app/build.gradle declares it. Boot and Float need nothing beyond
+    // termux-shared / terminal-view, which the app already has.
+    implementation 'org.reactivestreams:reactive-streams:1.0.3'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
+}
+
 // --- bootstrap zips before ndk-build -------------------------------------------------------------
 // Upstream hooks its `downloadBootstraps` task onto javaCompile only, but the zips are `.incbin`ed
 // by src/main/cpp/termux-bootstrap-zip.S, and Gradle is free to schedule `buildNdkBuildRelease[*]`

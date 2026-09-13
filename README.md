@@ -7,6 +7,15 @@ it installs **in place of** upstream Termux, signed with our own key. Tracks ups
 the version pins the upstream commit it is built on
 (`<upstream>+<base date>.<HH-MM>.g<sha>+<build>`).
 
+The plugins are **absorbed into the app** — no separate APKs: [Termux:Boot](https://github.com/termux/termux-boot)
+(`~/.termux/boot/` scripts run at boot once the app has been opened once), [Termux:Widget](https://github.com/termux/termux-widget)
+(the `~/.shortcuts` launcher widget, launcher shortcuts, dynamic shortcuts, Android 11+ device
+controls), [Termux:Float](https://github.com/termux/termux-float) (the floating terminal — a static
+shortcut on the app icon, no launcher icon of its own) and [Termux:Styling](https://github.com/termux/termux-styling)
+(its colour schemes and fonts, on the **白い熊 Termux UI** page that also styles the widget and the
+floating window). **Uninstall the standalone Termux:Boot / Widget / Float apps** when installing
+this — with both present every boot script runs twice and the launcher offers each widget twice.
+
 - Repository: https://github.com/ShiroiKuma0/shiroikuma-termux
 - Releases (APK downloads): https://github.com/ShiroiKuma0/shiroikuma-termux/releases
 - Issues: https://github.com/ShiroiKuma0/shiroikuma-termux/issues

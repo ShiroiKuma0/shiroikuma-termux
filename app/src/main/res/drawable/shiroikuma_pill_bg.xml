@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4b): the static pill of the token row's Regenerate action — black
+     fill, 1.5 dp yellow stroke, fully round. (Our dialogs draw their pills in code so the
+     Dialogs section's colours apply; this one lives in a preference row.) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/shiroikuma_black" />
+    <stroke
+        android:width="1.5dp"
+        android:color="@color/shiroikuma_yellow" />
+    <corners android:radius="50dp" />
+</shape>

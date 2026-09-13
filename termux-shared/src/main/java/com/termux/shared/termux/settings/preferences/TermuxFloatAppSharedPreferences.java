@@ -41,7 +41,9 @@ public class TermuxFloatAppSharedPreferences extends AppSharedPreferences {
      */
     @Nullable
     public static TermuxFloatAppSharedPreferences build(@NonNull final Context context) {
-        Context termuxFloatPackageContext = PackageUtils.getContextForPackage(context, TermuxConstants.TERMUX_FLOAT_PACKAGE_NAME);
+        Context termuxFloatPackageContext = absorbedPluginContext(context); // shiroikuma-termux (Phase 4c): ours first
+        if (termuxFloatPackageContext == null)
+            termuxFloatPackageContext = PackageUtils.getContextForPackage(context, TermuxConstants.TERMUX_FLOAT_PACKAGE_NAME);
         if (termuxFloatPackageContext == null)
             return null;
         else
@@ -58,11 +60,28 @@ public class TermuxFloatAppSharedPreferences extends AppSharedPreferences {
      * @return Returns the {@link TermuxFloatAppSharedPreferences}. This will {@code null} if an exception is raised.
      */
     public static TermuxFloatAppSharedPreferences build(@NonNull final Context context, final boolean exitAppOnError) {
-        Context termuxFloatPackageContext = TermuxUtils.getContextForPackageOrExitApp(context, TermuxConstants.TERMUX_FLOAT_PACKAGE_NAME, exitAppOnError);
+        // shiroikuma-termux (Phase 4c): inside the app that absorbed the plugin there is no plugin
+        // package to look up — use our own context (and never the exit-app dialog).
+        Context termuxFloatPackageContext = absorbedPluginContext(context);
+        if (termuxFloatPackageContext == null)
+            termuxFloatPackageContext = TermuxUtils.getContextForPackageOrExitApp(context, TermuxConstants.TERMUX_FLOAT_PACKAGE_NAME, exitAppOnError);
         if (termuxFloatPackageContext == null)
             return null;
         else
             return new TermuxFloatAppSharedPreferences(termuxFloatPackageContext);
+    }
+
+    /**
+     * shiroikuma-termux (Phase 4c): the plugin's sources live inside the Termux app itself
+     * ({@code com.termux}), so when the caller IS that app its preferences file is simply our own
+     * private {@code TERMUX_FLOAT_PACKAGE_NAME_preferences.xml} — no cross-package context needed.
+     * Returns {@code null} for any other caller (a still-installed standalone plugin, termux-api…).
+     */
+    @Nullable
+    private static Context absorbedPluginContext(@NonNull final Context context) {
+        if (TermuxConstants.TERMUX_PACKAGE_NAME.equals(context.getPackageName()))
+            return context.getApplicationContext() != null ? context.getApplicationContext() : context;
+        return null;
     }
 
 

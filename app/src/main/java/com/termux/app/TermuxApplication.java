@@ -16,6 +16,7 @@ import com.termux.shared.termux.shell.command.environment.TermuxShellEnvironment
 import com.termux.shared.termux.shell.am.TermuxAmSocketServer;
 import com.termux.shared.termux.shell.TermuxShellManager;
 import com.termux.shared.termux.theme.TermuxThemeUtils;
+import com.termux.shiroikuma.ShiroikumaLifecycle;
 
 public class TermuxApplication extends Application {
 
@@ -23,6 +24,8 @@ public class TermuxApplication extends Application {
 
     public void onCreate() {
         super.onCreate();
+
+        ShiroikumaLifecycle.install(this); // shiroikuma-termux: house dialogs / toolbars on every activity (Phase 4)
 
         Context context = getApplicationContext();
 

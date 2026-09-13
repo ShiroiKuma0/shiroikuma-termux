@@ -25,6 +25,7 @@ import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.TermuxUtils;
 import com.termux.shared.activity.media.AppCompatActivityUtils;
 import com.termux.shared.theme.NightMode;
+import com.termux.shiroikuma.ui.ShiroikumaUiActivity;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -59,6 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (context == null) return;
 
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            ShiroikumaUiActivity.bindSettingsRow(findPreference("shiroikuma_ui")); // shiroikuma-termux: 白い熊 Termux UI row
 
             new Thread() {
                 @Override

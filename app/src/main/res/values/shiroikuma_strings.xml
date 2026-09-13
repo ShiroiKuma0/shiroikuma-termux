@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4): strings of the 白い熊 Termux UI page and its pickers/dialogs.
+     Section titles in English as on the kxkb page; row labels likewise. -->
+<resources>
+
+    <!-- page / entry points -->
+    <string name="shiroikuma_ui_title">白い熊 Termux UI</string>
+    <string name="shiroikuma_ui_root_summary">Colours, fonts, extra keys, drawer, dialogs, widget, floating terminal — live preview</string>
+
+    <!-- sections -->
+    <string name="shiroikuma_ui_section_eximport">Export / Import</string>
+    <string name="shiroikuma_ui_section_terminal">Terminal</string>
+    <string name="shiroikuma_ui_section_extrakeys">Extra keys row</string>
+    <string name="shiroikuma_ui_section_drawer">Drawer / sessions</string>
+    <string name="shiroikuma_ui_section_toolbar">Toolbar / status bar</string>
+    <string name="shiroikuma_ui_section_dialogs">Dialogs / menus</string>
+    <string name="shiroikuma_ui_section_reset">Reset</string>
+
+    <!-- sub-headings -->
+    <string name="shiroikuma_ui_sub_colours">Colours</string>
+    <string name="shiroikuma_ui_sub_font">Font</string>
+    <string name="shiroikuma_ui_sub_dialogs">Dialogs</string>
+    <string name="shiroikuma_ui_sub_menus">Menus</string>
+
+    <!-- terminal -->
+    <string name="shiroikuma_ui_terminal_sample_hint">Long-press a colour or size row to restore its default.</string>
+    <string name="shiroikuma_ui_terminal_sample_text">$ ls -la ~</string>
+    <string name="shiroikuma_ui_terminal_background">Background</string>
+    <string name="shiroikuma_ui_terminal_foreground">Foreground</string>
+    <string name="shiroikuma_ui_terminal_cursor">Cursor</string>
+    <string name="shiroikuma_ui_terminal_scheme">Colour scheme…</string>
+    <string name="shiroikuma_ui_terminal_scheme_custom">Custom</string>
+    <string name="shiroikuma_ui_terminal_scheme_house">白い熊 (house)</string>
+    <string name="shiroikuma_ui_terminal_font">Font</string>
+    <string name="shiroikuma_ui_terminal_font_default">Monospace (default)</string>
+    <string name="shiroikuma_ui_terminal_font_add">Add font…</string>
+    <string name="shiroikuma_ui_terminal_font_added">Added %1$s</string>
+    <string name="shiroikuma_ui_terminal_font_unreadable">Could not read that file</string>
+    <string name="shiroikuma_ui_terminal_font_size">Font size</string>
+    <string name="shiroikuma_ui_terminal_font_size_summary">Pixels — pinch-zoom on the terminal changes it too</string>
+
+    <!-- extra keys -->
+    <string name="shiroikuma_ui_extrakeys_bg">Background</string>
+    <string name="shiroikuma_ui_extrakeys_text">Text</string>
+    <string name="shiroikuma_ui_extrakeys_active_text">Active text</string>
+    <string name="shiroikuma_ui_extrakeys_active_text_summary">CTRL / ALT / FN while toggled</string>
+    <string name="shiroikuma_ui_extrakeys_active_bg">Active background</string>
+    <string name="shiroikuma_ui_extrakeys_active_bg_summary">A key while pressed</string>
+    <string name="shiroikuma_ui_extrakeys_text_size">Text size</string>
+    <string name="shiroikuma_ui_extrakeys_border_width">Border width</string>
+    <string name="shiroikuma_ui_extrakeys_border_color">Border colour</string>
+    <string name="shiroikuma_ui_extrakeys_corner">Corner radius</string>
+
+    <!-- drawer / sessions -->
+    <string name="shiroikuma_ui_drawer_bg">Drawer background</string>
+    <string name="shiroikuma_ui_drawer_button_text">Button text</string>
+    <string name="shiroikuma_ui_drawer_button_text_summary">KEYBOARD · NEW SESSION</string>
+    <string name="shiroikuma_ui_drawer_icon_tint">Icon tint</string>
+    <string name="shiroikuma_ui_session_text">Session text</string>
+    <string name="shiroikuma_ui_session_selected_bg">Session selected background</string>
+    <string name="shiroikuma_ui_session_dead_text">Dead-session colour</string>
+    <string name="shiroikuma_ui_session_dead_text_summary">A session that exited with an error</string>
+    <string name="shiroikuma_ui_session_text_size">Session text size</string>
+
+    <!-- toolbar / status bar -->
+    <string name="shiroikuma_ui_toolbar_hint">Settings, Help, Report and this page. The terminal keeps its translucent bars.</string>
+    <string name="shiroikuma_ui_toolbar_bg">Toolbar background</string>
+    <string name="shiroikuma_ui_toolbar_text">Toolbar text</string>
+    <string name="shiroikuma_ui_toolbar_icon">Toolbar icons</string>
+    <string name="shiroikuma_ui_statusbar_bg">Status bar</string>
+    <string name="shiroikuma_ui_navbar_bg">Navigation bar</string>
+
+    <!-- dialogs / menus -->
+    <string name="shiroikuma_ui_dialogs_hint">This page’s dialogs and the terminal’s context menu follow every row here. Termux’s own dialogs (kill session, rename…) keep the house black/yellow with the default border and corner.</string>
+    <string name="shiroikuma_ui_dialog_bg">Background</string>
+    <string name="shiroikuma_ui_dialog_text">Text</string>
+    <string name="shiroikuma_ui_dialog_title">Title</string>
+    <string name="shiroikuma_ui_dialog_button">Button text</string>
+    <string name="shiroikuma_ui_dialog_border_color">Border colour</string>
+    <string name="shiroikuma_ui_dialog_border_width">Border width</string>
+    <string name="shiroikuma_ui_dialog_corner">Corner radius</string>
+    <string name="shiroikuma_ui_menu_bg">Background</string>
+    <string name="shiroikuma_ui_menu_text">Text</string>
+    <string name="shiroikuma_ui_menu_border_color">Border colour</string>
+    <string name="shiroikuma_ui_menu_border_width">Border width</string>
+    <string name="shiroikuma_ui_menu_corner">Corner radius</string>
+
+    <!-- Phase 4c: the absorbed Termux:Widget and Termux:Float -->
+    <string name="shiroikuma_ui_section_widget">Widget</string>
+    <string name="shiroikuma_ui_widget_hint">The launcher widget lists ~/.shortcuts (tasks/ run in the background). Add it from the launcher’s widget picker; single-script shortcuts come from its shortcut picker.</string>
+    <string name="shiroikuma_ui_widget_bg">List background</string>
+    <string name="shiroikuma_ui_widget_text">Text</string>
+    <string name="shiroikuma_ui_widget_text_size">Text size</string>
+    <string name="shiroikuma_ui_widget_refresh">Refresh widgets</string>
+    <string name="shiroikuma_ui_widget_refresh_summary">Re-read ~/.shortcuts on every placed widget</string>
+    <string name="shiroikuma_ui_widget_dynamic_create">Create dynamic shortcuts</string>
+    <string name="shiroikuma_ui_widget_dynamic_create_summary">From ~/.termux/widget/dynamic_shortcuts — shown on a long-press of the app icon</string>
+    <string name="shiroikuma_ui_widget_dynamic_remove">Remove dynamic shortcuts</string>
+    <string name="shiroikuma_ui_widget_needs_api">Dynamic shortcuts need Android 7.1</string>
+
+    <string name="shiroikuma_ui_section_float">Floating terminal</string>
+    <string name="shiroikuma_ui_float_open">Open floating terminal</string>
+    <string name="shiroikuma_ui_float_open_summary">A terminal in a window over other apps. Long-press it to move or resize, the notification hides or shows it. Asks once for the overlay permission.</string>
+    <string name="shiroikuma_ui_float_bg">Window background</string>
+    <string name="shiroikuma_ui_float_bg_summary">The frame and the controls bar — the terminal itself keeps the Terminal colours</string>
+    <string name="shiroikuma_ui_float_border_color">Border colour</string>
+    <string name="shiroikuma_ui_float_border_width">Border width</string>
+    <string name="shiroikuma_ui_float_corner">Corner radius</string>
+    <string name="shiroikuma_ui_float_notification_text">Notification text</string>
+    <string name="shiroikuma_ui_float_notification_default">default — “Touch to hide window.” / “Touch to show window.”</string>
+    <string name="shiroikuma_ui_float_notification_hint">Empty = the default</string>
+    <string name="shiroikuma_shortcut_float">Floating terminal</string>
+
+    <!-- reset -->
+    <string name="shiroikuma_ui_reset">Reset all to defaults</string>
+    <string name="shiroikuma_ui_reset_summary">Colours, scheme, font, font size, extra keys, drawer, toolbar, dialogs, widget, floating terminal</string>
+    <string name="shiroikuma_ui_reset_confirm_title">Reset the UI?</string>
+    <string name="shiroikuma_ui_reset_confirm_body">Every row on this page returns to its default: the house colour scheme is written to ~/.termux/colors.properties, ~/.termux/font.ttf is removed and the font size goes back to the default.</string>
+    <string name="shiroikuma_ui_reset_action">Reset</string>
+
+    <!-- pickers -->
+    <string name="shiroikuma_ui_pick_colour">Pick a colour</string>
+    <string name="shiroikuma_ui_seekbar_default">default</string>
+    <string name="shiroikuma_ui_scheme_title">Colour scheme</string>
+
+    <!-- ===== Phase 4b: Export / Import section, panel, backup engine, automation ===== -->
+
+    <!-- the section rows -->
+    <string name="shiroikuma_eim_entry">Export / Import…</string>
+    <string name="shiroikuma_eim_entry_desc">Settings, home (~) and packages ($PREFIX) as one ZIP — the baktermux backup, in the app</string>
+    <string name="shiroikuma_eim_dir">Export directory</string>
+    <string name="shiroikuma_eim_dir_unset">not set</string>
+    <string name="shiroikuma_eim_dir_grant">All-files access not granted — tap to grant</string>
+    <string name="shiroikuma_eim_dir_unresolvable">That folder has no path this app can write (pick one on the phone’s storage or an SD card)</string>
+    <string name="shiroikuma_eim_last_title">Last export</string>
+    <string name="shiroikuma_eim_warn_nodir">no directory</string>
+    <string name="shiroikuma_eim_warn_none">none</string>
+    <string name="shiroikuma_eim_last">Last backup: %1$s · %2$s</string>
+
+    <!-- the panel -->
+    <string name="shiroikuma_eim_title">Export / Import</string>
+    <string name="shiroikuma_eim_desc">One ZIP: settings (preferences · termux.properties · colours · font) plus a tar of ~ and one of $PREFIX. Import restores what the file contains and you tick — home and packages are replaced whole after every session has been closed.</string>
+    <string name="shiroikuma_eim_select_all">全選択</string>
+    <string name="shiroikuma_eim_import">Import</string>
+    <string name="shiroikuma_eim_export">Export</string>
+    <string name="shiroikuma_eim_none_selected">No categories selected.</string>
+    <string name="shiroikuma_eim_exporting">Exporting…</string>
+    <string name="shiroikuma_eim_importing">Importing…</string>
+    <string name="shiroikuma_eim_cancelling">Cancelling…</string>
+    <string name="shiroikuma_eim_cancelled">Cancelled — nothing was written.</string>
+    <string name="shiroikuma_eim_export_done_title">Export complete</string>
+    <string name="shiroikuma_eim_export_done_body">%1$s\n%2$s</string>
+    <string name="shiroikuma_eim_export_fail_title">Export failed</string>
+    <string name="shiroikuma_eim_export_fail">Export failed: %1$s</string>
+    <string name="shiroikuma_eim_import_done_title">Import complete</string>
+    <string name="shiroikuma_eim_import_fail_title">Import failed</string>
+    <string name="shiroikuma_eim_import_fail">Import failed: %1$s</string>
+    <string name="shiroikuma_eim_pick_backup">Restore which backup?</string>
+    <string name="shiroikuma_eim_browse">Browse…</string>
+    <string name="shiroikuma_eim_restore_confirm_title">Restore home / packages?</string>
+    <string name="shiroikuma_eim_restore_confirm_body">Restoring packages closes all terminal sessions. Every process of this app is stopped, the tree is unpacked beside the live one and swapped in only when the whole archive has been read.</string>
+    <string name="shiroikuma_eim_restart_hint">Restart the app so the terminal starts from the restored prefix and settings.</string>
+    <string name="shiroikuma_eim_restart_later">Later</string>
+    <string name="shiroikuma_eim_restart_now">Restart now</string>
+    <string name="shiroikuma_eim_battery_title">Long export</string>
+    <string name="shiroikuma_eim_battery_body">A backup of the packages takes minutes and this app is not exempt from battery optimisation — on Huawei the export may be starved part-way with the screen off. Allow background running (and on EMUI アプリ起動管理 → 手動管理 with バックグラウンドで実行), or keep the screen on and export anyway.</string>
+    <string name="shiroikuma_eim_battery_anyway">Export anyway</string>
+    <string name="shiroikuma_eim_battery_settings">Battery settings…</string>
+
+    <!-- categories: LIST_CATEGORIES labels (the panel shows the same) -->
+    <string name="shiroikuma_eim_cat_settings">Settings (app preferences · termux.properties · colours · font)</string>
+    <string name="shiroikuma_eim_cat_data">Data (home + packages)</string>
+    <string name="shiroikuma_eim_cat_home">Home (/data/data/com.termux/files/home)</string>
+    <string name="shiroikuma_eim_cat_usr">Packages ($PREFIX = …/files/usr)</string>
+    <string name="shiroikuma_eim_cat_settings_short">Settings</string>
+    <string name="shiroikuma_eim_cat_data_short">Data</string>
+    <string name="shiroikuma_eim_cat_home_short">Home</string>
+    <string name="shiroikuma_eim_cat_usr_short">Packages</string>
+    <!-- describe → contains[] -->
+    <string name="shiroikuma_eim_contains_settings">Settings</string>
+    <string name="shiroikuma_eim_contains_home">Home (~)</string>
+    <string name="shiroikuma_eim_contains_usr">Packages ($PREFIX)</string>
+
+    <!-- engine lines -->
+    <string name="shiroikuma_eim_progress_counting">%1$s: counting files…</string>
+    <string name="shiroikuma_eim_progress_stopping">Stopping sessions and processes…</string>
+    <string name="shiroikuma_eim_progress_swapping">%1$s: swapping in…</string>
+    <string name="shiroikuma_eim_line_settings">Settings: %1$d files</string>
+    <string name="shiroikuma_eim_line_data">%1$s: %2$d entries, %3$s</string>
+    <string name="shiroikuma_eim_line_skipped"> (%1$d skipped: sockets, pipes, unreadable)</string>
+    <string name="shiroikuma_eim_line_settings_restored">Settings: %1$d preferences, %2$d files</string>
+    <string name="shiroikuma_eim_line_data_restored">%1$s: %2$d entries, %3$s restored</string>
+
+    <!-- the foreground service -->
+    <string name="shiroikuma_eim_notif_channel">Backup</string>
+    <string name="shiroikuma_eim_notif_export">白い熊 Termux backup</string>
+    <string name="shiroikuma_eim_notif_import">白い熊 Termux restore</string>
+    <string name="shiroikuma_eim_notif_exporting">Exporting…</string>
+    <string name="shiroikuma_eim_notif_importing">Importing…</string>
+
+    <!-- 保存復元 automation (contract §2) -->
+    <string name="shiroikuma_auto_switch">Automation export</string>
+    <string name="shiroikuma_auto_switch_desc">Sister apps (自由作業盤, 応用管理) may trigger this app’s export and back its data up — and restore it onto a clean phone</string>
+    <string name="shiroikuma_auto_require_token">Use authorization token?</string>
+    <string name="shiroikuma_auto_require_token_desc">Off: any sister app may drive the automation. On: a caller must also present the token below. The data door checks the caller’s identity and signature either way.</string>
+    <string name="shiroikuma_auto_token">Authorization token</string>
+    <string name="shiroikuma_auto_token_summary">Tap to copy the full token</string>
+    <string name="shiroikuma_auto_token_copied">Token copied</string>
+    <string name="shiroikuma_auto_regenerate">Regenerate</string>
+    <string name="shiroikuma_auto_token_regen_title">Regenerate the token?</string>
+    <string name="shiroikuma_auto_token_regen_msg">Every caller that has this token pasted in must be updated, or it will start failing with “bad token”.</string>
+    <string name="shiroikuma_auto_token_regenerated">New token generated</string>
+
+</resources>

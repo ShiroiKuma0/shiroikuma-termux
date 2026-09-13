@@ -36,7 +36,9 @@ public class TermuxWidgetAppSharedPreferences extends AppSharedPreferences {
      */
     @Nullable
     public static TermuxWidgetAppSharedPreferences build(@NonNull final Context context) {
-        Context termuxWidgetPackageContext = PackageUtils.getContextForPackage(context, TermuxConstants.TERMUX_WIDGET_PACKAGE_NAME);
+        Context termuxWidgetPackageContext = absorbedPluginContext(context); // shiroikuma-termux (Phase 4c): ours first
+        if (termuxWidgetPackageContext == null)
+            termuxWidgetPackageContext = PackageUtils.getContextForPackage(context, TermuxConstants.TERMUX_WIDGET_PACKAGE_NAME);
         if (termuxWidgetPackageContext == null)
             return null;
         else
@@ -53,11 +55,28 @@ public class TermuxWidgetAppSharedPreferences extends AppSharedPreferences {
      * @return Returns the {@link TermuxWidgetAppSharedPreferences}. This will {@code null} if an exception is raised.
      */
     public static TermuxWidgetAppSharedPreferences build(@NonNull final Context context, final boolean exitAppOnError) {
-        Context termuxWidgetPackageContext = TermuxUtils.getContextForPackageOrExitApp(context, TermuxConstants.TERMUX_WIDGET_PACKAGE_NAME, exitAppOnError);
+        // shiroikuma-termux (Phase 4c): inside the app that absorbed the plugin there is no plugin
+        // package to look up — use our own context (and never the exit-app dialog).
+        Context termuxWidgetPackageContext = absorbedPluginContext(context);
+        if (termuxWidgetPackageContext == null)
+            termuxWidgetPackageContext = TermuxUtils.getContextForPackageOrExitApp(context, TermuxConstants.TERMUX_WIDGET_PACKAGE_NAME, exitAppOnError);
         if (termuxWidgetPackageContext == null)
             return null;
         else
             return new TermuxWidgetAppSharedPreferences(termuxWidgetPackageContext);
+    }
+
+    /**
+     * shiroikuma-termux (Phase 4c): the plugin's sources live inside the Termux app itself
+     * ({@code com.termux}), so when the caller IS that app its preferences file is simply our own
+     * private {@code TERMUX_WIDGET_PACKAGE_NAME_preferences.xml} — no cross-package context needed.
+     * Returns {@code null} for any other caller (a still-installed standalone plugin, termux-api…).
+     */
+    @Nullable
+    private static Context absorbedPluginContext(@NonNull final Context context) {
+        if (TermuxConstants.TERMUX_PACKAGE_NAME.equals(context.getPackageName()))
+            return context.getApplicationContext() != null ? context.getApplicationContext() : context;
+        return null;
     }
 
 

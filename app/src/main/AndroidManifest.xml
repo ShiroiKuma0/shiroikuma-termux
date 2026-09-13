@@ -37,6 +37,16 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
+    <!-- shiroikuma-termux (Phase 4b): the backup service runs as a foreground dataSync service
+         (API 34+ needs the typed permission; harmless below), and the two automation callers must
+         be visible for our reply broadcasts' setPackage() to resolve on Android 11+ (contract §4). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <queries>
+        <package android:name="shiroikuma.oyokanri" />
+        <package android:name="shiroikuma.jiyusagyoban" />
+    </queries>
+
     <application
         android:name=".app.TermuxApplication"
         android:allowBackup="false"
@@ -101,6 +111,16 @@
             android:exported="true"
             android:label="@string/title_activity_termux_settings"
             android:theme="@style/Theme.TermuxApp.DayNight.NoActionBar" />
+
+        <!-- shiroikuma-termux (Phase 4): the 白い熊 Termux UI page. Translucent theme so the terminal
+             underneath stays started and previews every change live. Exported (Phase 4c) for the
+             static launcher shortcut in res/xml/shortcuts.xml; it takes no intent data. -->
+        <activity
+            android:name=".shiroikuma.ui.ShiroikumaUiActivity"
+            android:exported="true"
+            android:label="@string/shiroikuma_ui_title"
+            android:parentActivityName=".app.TermuxActivity"
+            android:theme="@style/Theme.ShiroikumaUi" />
 
         <activity
             android:name=".shared.activities.ReportActivity"
@@ -205,6 +225,149 @@
                 <action android:name="${TERMUX_PACKAGE_NAME}.RUN_COMMAND" />
             </intent-filter>
         </service>
+
+        <!-- shiroikuma-termux (Phase 4b): the sister-app backup-automation contract v2.
+             §1 the exported broadcast door (no permission by design: it only writes where told),
+             §2a the provider data door (caller verified by name, uid and pinned certificate),
+             the foreground dataSync service every export/import runs in, and the three integer
+             meta-data 応用管理 reads to know this app can be backed up. -->
+        <receiver
+            android:name=".shiroikuma.automation.StateExportReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="${applicationId}.action.EXPORT_STATE" />
+                <action android:name="${applicationId}.action.LIST_CATEGORIES" />
+                <action android:name="${applicationId}.action.CANCEL_EXPORT" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name=".shiroikuma.automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
+        <service
+            android:name=".shiroikuma.automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <meta-data
+            android:name="shiroikuma.automation.contract"
+            android:value="2" />
+        <meta-data
+            android:name="shiroikuma.automation.format"
+            android:value="1" />
+        <meta-data
+            android:name="shiroikuma.automation.min_format"
+            android:value="1" />
+
+        <!-- shiroikuma-termux (Phase 4c): the absorbed plugins — Termux:Boot (com.termux.boot),
+             Termux:Widget (com.termux.widget) and Termux:Float (com.termux.window), one block, names
+             written out in full (the plugins' own manifests used ".X" against THEIR package; ours
+             is com.termux). No launcher entries: the widget's info page and the float's launcher
+             activity are reached from the 白い熊 Termux UI page / the static shortcuts instead.
+             RECEIVE_BOOT_COMPLETED and SYSTEM_ALERT_WINDOW are already declared above. -->
+
+        <!-- Termux:Boot — BOOT_COMPLETED → one JobScheduler job per file in ~/.termux/boot,
+             each starting TermuxService ACTION_SERVICE_EXECUTE in the background. -->
+        <receiver
+            android:name="com.termux.boot.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:name="com.termux.boot.BootJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <!-- Termux:Widget — the list widget, its RemoteViews service, the launcher's CREATE_SHORTCUT
+             picker, the (token-guarded) shortcut launcher, the Device Controls provider (API 30+)
+             and the refresh-on-boot/update receiver. -->
+        <receiver
+            android:name="com.termux.widget.TermuxWidgetProvider"
+            android:exported="false"
+            android:label="@string/title_shortcut_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/termux_appwidget_info" />
+        </receiver>
+
+        <receiver
+            android:name="com.termux.widget.TermuxWidgetControlExecutorReceiver"
+            android:exported="false" />
+
+        <activity
+            android:name="com.termux.widget.TermuxCreateShortcutActivity"
+            android:exported="true"
+            android:label="@string/title_single_shortcut_name"
+            android:theme="@style/Theme.BaseActivity.DayNight.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.termux.widget.TermuxLaunchShortcutActivity"
+            android:exported="true"
+            android:noHistory="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="com.termux.widget.TermuxLaunchShortcutActivity"
+            android:theme="@android:style/Theme.NoDisplay" />
+
+        <receiver
+            android:name="com.termux.widget.receivers.SystemEventReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.MY_PACKAGE_UNSUSPENDED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.termux.widget.TermuxWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        <service
+            android:name="com.termux.widget.TermuxWidgetControlsProviderService"
+            android:exported="true"
+            android:label="@string/title_termux_shortcuts"
+            android:permission="android.permission.BIND_CONTROLS"
+            tools:targetApi="r">
+            <intent-filter>
+                <action android:name="android.service.controls.ControlsProviderService" />
+            </intent-filter>
+        </service>
+
+        <!-- Termux:Float — the invisible activity that starts the floating window (the static
+             "Floating terminal" shortcut's target; exported for the launcher, no LAUNCHER category),
+             the overlay-permission prompt, and the foreground service that owns the window. -->
+        <activity
+            android:name="com.termux.window.TermuxFloatActivity"
+            android:exported="true"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:label="@string/float_app_name"
+            android:theme="@android:style/Theme.NoDisplay" />
+
+        <activity
+            android:name="com.termux.window.TermuxFloatPermissionActivity"
+            android:exported="false"
+            android:label="@string/float_app_name"
+            android:theme="@android:style/Theme.Material" />
+
+        <service
+            android:name="com.termux.window.TermuxFloatService"
+            android:exported="false" />
 
 
         <!-- This (or rather, value 2.1 or higher) is needed to make the Samsung Galaxy S8 mark the

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4): the house palette, the theme of the 白い熊 Termux UI page, the
+     dialog overlays that ShiroikumaLifecycle applies to every activity, and the attrs of our
+     seekbar row. See app/src/main/java/com/termux/shiroikuma/. -->
+<resources>
+
+    <color name="shiroikuma_black">#FF000000</color>
+    <color name="shiroikuma_yellow">#FFFFFF00</color>
+    <color name="shiroikuma_yellow_dim">#FFC8C800</color>
+    <color name="shiroikuma_red">#FFFF5252</color>
+
+    <!-- ShiroikumaSeekBarPreference: [skMin, skMax] plus, when skZeroLabel is set, one extra step
+         at the left that stores 0 and reads as that label ("default"). -->
+    <declare-styleable name="ShiroikumaSeekBarPreference">
+        <attr name="skMin" format="integer" />
+        <attr name="skMax" format="integer" />
+        <attr name="skUnit" format="string" />
+        <attr name="skZeroLabel" format="string" />
+    </declare-styleable>
+
+    <!-- The page. Fixed dark; TRANSLUCENT so the TermuxActivity underneath is paused but never
+         stopped — its ACTION_RELOAD_STYLE receiver (registered in onStart, unregistered in onStop)
+         stays alive and every change on the page previews live. The opaque black windowBackground
+         keeps the terminal from showing through. -->
+    <style name="Theme.ShiroikumaUi" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/shiroikuma_black</item>
+        <item name="android:colorBackground">@color/shiroikuma_black</item>
+        <item name="android:statusBarColor">@color/shiroikuma_black</item>
+        <item name="android:navigationBarColor">@color/shiroikuma_black</item>
+        <item name="colorPrimary">@color/shiroikuma_black</item>
+        <item name="colorPrimaryVariant">@color/shiroikuma_black</item>
+        <item name="colorPrimaryDark">@color/shiroikuma_black</item>
+        <item name="colorOnPrimary">@color/shiroikuma_yellow</item>
+        <item name="colorSecondary">@color/shiroikuma_yellow</item>
+        <item name="colorSecondaryVariant">@color/shiroikuma_yellow</item>
+        <item name="colorOnSecondary">@color/shiroikuma_black</item>
+        <item name="colorAccent">@color/shiroikuma_yellow</item>
+        <item name="colorControlActivated">@color/shiroikuma_yellow</item>
+        <item name="colorControlNormal">@color/shiroikuma_yellow_dim</item>
+        <item name="colorControlHighlight">#33FFFF00</item>
+        <item name="colorSurface">@color/shiroikuma_black</item>
+        <item name="colorOnSurface">@color/shiroikuma_yellow</item>
+        <item name="colorOnBackground">@color/shiroikuma_yellow</item>
+        <item name="android:textColorPrimary">@color/shiroikuma_yellow</item>
+        <item name="android:textColorSecondary">@color/shiroikuma_yellow_dim</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog</item>
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog.Platform</item>
+    </style>
+
+    <!-- Applied at runtime (Theme.applyStyle, force) to EVERY activity's theme from
+         ShiroikumaLifecycle.onActivityCreated — i.e. inside super.onCreate(), before setContentView —
+         so the platform AlertDialogs upstream builds (kill session, rename, styling errors…) and any
+         AppCompat/Material ones come out black/yellow with the bordered shiroikuma_dialog_bg.
+         Nothing else: TermuxActivity's own colours stay upstream's. -->
+    <style name="ThemeOverlay.Shiroikuma.Activity" parent="">
+        <item name="android:alertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog.Platform</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog</item>
+    </style>
+
+    <!-- android.app.AlertDialog (what upstream uses everywhere). Static: the border/corner sliders
+         of the page cannot reach a theme resource — only our own dialogs follow them. -->
+    <style name="ThemeOverlay.Shiroikuma.Dialog.Platform" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/shiroikuma_dialog_bg</item>
+        <item name="android:colorBackground">@color/shiroikuma_black</item>
+        <item name="android:colorPrimary">@color/shiroikuma_black</item>
+        <item name="android:colorAccent">@color/shiroikuma_yellow</item>
+        <item name="android:colorControlActivated">@color/shiroikuma_yellow</item>
+        <item name="android:colorControlNormal">@color/shiroikuma_yellow_dim</item>
+        <item name="android:colorControlHighlight">#33FFFF00</item>
+        <item name="android:textColorPrimary">@color/shiroikuma_yellow</item>
+        <item name="android:textColorSecondary">@color/shiroikuma_yellow_dim</item>
+        <item name="android:textColorTertiary">@color/shiroikuma_yellow_dim</item>
+        <item name="android:textColorHint">@color/shiroikuma_yellow_dim</item>
+        <item name="android:textColorAlertDialogListItem">@color/shiroikuma_yellow</item>
+        <item name="android:textColor">@color/shiroikuma_yellow</item>
+    </style>
+
+    <!-- androidx.appcompat.app.AlertDialog / MaterialAlertDialogBuilder (our page). -->
+    <style name="ThemeOverlay.Shiroikuma.Dialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/shiroikuma_dialog_bg</item>
+        <item name="android:colorBackground">@color/shiroikuma_black</item>
+        <item name="colorPrimary">@color/shiroikuma_yellow</item>
+        <item name="colorAccent">@color/shiroikuma_yellow</item>
+        <item name="colorSurface">@color/shiroikuma_black</item>
+        <item name="colorOnSurface">@color/shiroikuma_yellow</item>
+        <item name="colorControlActivated">@color/shiroikuma_yellow</item>
+        <item name="colorControlNormal">@color/shiroikuma_yellow_dim</item>
+        <item name="colorControlHighlight">#33FFFF00</item>
+        <item name="android:textColorPrimary">@color/shiroikuma_yellow</item>
+        <item name="android:textColorSecondary">@color/shiroikuma_yellow_dim</item>
+        <item name="android:textColorHint">@color/shiroikuma_yellow_dim</item>
+        <item name="textColorAlertDialogListItem">@color/shiroikuma_yellow</item>
+        <item name="android:textColorAlertDialogListItem">@color/shiroikuma_yellow</item>
+    </style>
+
+</resources>

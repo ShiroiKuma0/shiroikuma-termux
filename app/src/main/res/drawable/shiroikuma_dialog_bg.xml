@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4): window background of platform / AppCompat dialogs under the
+     ThemeOverlay.Shiroikuma.Dialog* themes — black, 2 dp yellow border, 8 dp corners, 16 dp inset
+     (the inset stands in for the dialog window margin the stock background carries). -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="16dp"
+    android:insetTop="16dp"
+    android:insetRight="16dp"
+    android:insetBottom="16dp">
+    <shape android:shape="rectangle">
+        <solid android:color="@color/shiroikuma_black" />
+        <stroke
+            android:width="2dp"
+            android:color="@color/shiroikuma_yellow" />
+        <corners android:radius="8dp" />
+    </shape>
+</inset>

@@ -23,6 +23,7 @@ import com.termux.app.TermuxActivity;
 import com.termux.shared.termux.shell.command.runner.terminal.TermuxSession;
 import com.termux.shared.theme.NightMode;
 import com.termux.shared.theme.ThemeUtils;
+import com.termux.shiroikuma.ui.ShiroikumaChrome;
 import com.termux.terminal.TerminalSession;
 
 import java.util.List;
@@ -89,6 +90,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
         int defaultColor = shouldEnableDarkTheme ? Color.WHITE : Color.BLACK;
         int color = sessionRunning || sessionAtRow.getExitStatus() == 0 ? defaultColor : Color.RED;
         sessionTitleView.setTextColor(color);
+        ShiroikumaChrome.styleSessionRow(sessionTitleView, color == Color.RED); // shiroikuma-termux: house colours / size / selected background
         return sessionRowView;
     }
 

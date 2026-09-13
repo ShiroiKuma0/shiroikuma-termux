@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4): the 白い熊 Termux UI page.
+     PreferenceCategory = section (kxkb header layouts; the FIRST section takes the `_first` layout
+     without the hairline), a non-selectable ShiroikumaPreference with the subheader layout = a
+     sub-heading, rows at indent1 (72 dp, directly under a section) or indent2 (90 dp, under a
+     sub-heading). Nothing here persists on its own (persistent="false" everywhere):
+     ShiroikumaUiFragment wires every row by key to ShiroikumaTheme (prefs file `shiroikuma_ui`)
+     or to the terminal files under ~/.termux, and every change previews live. -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Export / Import — the first section of every sister app's page (Phase 4b). The panel, the
+         backup directory (absolute path; red while unset, a red second line while All-files
+         access is missing), the last export (queried on resume), and — directly below, never as a
+         section of their own — the three 保存復元 automation rows of the contract §2: the master
+         switch (default ON), 「Use authorization token?」 (default OFF), and the token row shown
+         only while it is asked for. The automation flags live in the device-local
+         `shiroikuma_automation` file, the directory in `shiroikuma_eximport`; neither is ever
+         exported (persistent="false" here, wired by ShiroikumaUiFragment.wireExportImport()). -->
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_eximport"
+        android:layout="@layout/preference_category_shiroikuma_first">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="eximport"
+            android:title="@string/shiroikuma_eim_entry"
+            android:summary="@string/shiroikuma_eim_entry_desc"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="export_dir"
+            android:title="@string/shiroikuma_eim_dir"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="last_export"
+            android:title="@string/shiroikuma_eim_last_title"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:selectable="false"
+            android:persistent="false" />
+        <SwitchPreferenceCompat
+            android:key="automation_enabled"
+            android:title="@string/shiroikuma_auto_switch"
+            android:summary="@string/shiroikuma_auto_switch_desc"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <SwitchPreferenceCompat
+            android:key="automation_require_token"
+            android:title="@string/shiroikuma_auto_require_token"
+            android:summary="@string/shiroikuma_auto_require_token_desc"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.AutomationTokenPreference
+            android:key="automation_token"
+            android:title="@string/shiroikuma_auto_token"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_regenerate"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_terminal"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.TerminalSamplePreference
+            android:key="terminal_sample"
+            android:summary="@string/shiroikuma_ui_terminal_sample_hint"
+            android:layout="@layout/preference_shiroikuma_terminal_sample"
+            android:selectable="false"
+            android:persistent="false" />
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:title="@string/shiroikuma_ui_sub_colours"
+            android:layout="@layout/preference_shiroikuma_subheader"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="terminal_background"
+            android:title="@string/shiroikuma_ui_terminal_background"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="terminal_foreground"
+            android:title="@string/shiroikuma_ui_terminal_foreground"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="terminal_cursor"
+            android:title="@string/shiroikuma_ui_terminal_cursor"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="terminal_scheme"
+            android:title="@string/shiroikuma_ui_terminal_scheme"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:persistent="false" />
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:title="@string/shiroikuma_ui_sub_font"
+            android:layout="@layout/preference_shiroikuma_subheader"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="terminal_font"
+            android:title="@string/shiroikuma_ui_terminal_font"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="terminal_font_size"
+            android:title="@string/shiroikuma_ui_terminal_font_size"
+            android:summary="@string/shiroikuma_ui_terminal_font_size_summary"
+            android:layout="@layout/preference_shiroikuma_seekbar_l2"
+            app:skMin="4"
+            app:skMax="256"
+            app:skUnit="px"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_extrakeys"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="extrakeys_bg"
+            android:title="@string/shiroikuma_ui_extrakeys_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="extrakeys_text"
+            android:title="@string/shiroikuma_ui_extrakeys_text"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="extrakeys_active_text"
+            android:title="@string/shiroikuma_ui_extrakeys_active_text"
+            android:summary="@string/shiroikuma_ui_extrakeys_active_text_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="extrakeys_active_bg"
+            android:title="@string/shiroikuma_ui_extrakeys_active_bg"
+            android:summary="@string/shiroikuma_ui_extrakeys_active_bg_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="extrakeys_text_size_sp"
+            android:title="@string/shiroikuma_ui_extrakeys_text_size"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="8"
+            app:skMax="24"
+            app:skUnit="sp"
+            app:skZeroLabel="@string/shiroikuma_ui_seekbar_default"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="extrakeys_border_dp"
+            android:title="@string/shiroikuma_ui_extrakeys_border_width"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="0"
+            app:skMax="6"
+            app:skUnit="dp"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="extrakeys_border_color"
+            android:title="@string/shiroikuma_ui_extrakeys_border_color"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="extrakeys_corner_dp"
+            android:title="@string/shiroikuma_ui_extrakeys_corner"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="0"
+            app:skMax="12"
+            app:skUnit="dp"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_drawer"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="drawer_bg"
+            android:title="@string/shiroikuma_ui_drawer_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="drawer_button_text"
+            android:title="@string/shiroikuma_ui_drawer_button_text"
+            android:summary="@string/shiroikuma_ui_drawer_button_text_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="drawer_icon_tint"
+            android:title="@string/shiroikuma_ui_drawer_icon_tint"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="session_text"
+            android:title="@string/shiroikuma_ui_session_text"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="session_selected_bg"
+            android:title="@string/shiroikuma_ui_session_selected_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="session_dead_text"
+            android:title="@string/shiroikuma_ui_session_dead_text"
+            android:summary="@string/shiroikuma_ui_session_dead_text_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="session_text_size_sp"
+            android:title="@string/shiroikuma_ui_session_text_size"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="10"
+            app:skMax="24"
+            app:skUnit="sp"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_toolbar"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:summary="@string/shiroikuma_ui_toolbar_hint"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="toolbar_bg"
+            android:title="@string/shiroikuma_ui_toolbar_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="toolbar_text"
+            android:title="@string/shiroikuma_ui_toolbar_text"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="toolbar_icon"
+            android:title="@string/shiroikuma_ui_toolbar_icon"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="statusbar_bg"
+            android:title="@string/shiroikuma_ui_statusbar_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="navbar_bg"
+            android:title="@string/shiroikuma_ui_navbar_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_dialogs"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:summary="@string/shiroikuma_ui_dialogs_hint"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:selectable="false"
+            android:persistent="false" />
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:title="@string/shiroikuma_ui_sub_dialogs"
+            android:layout="@layout/preference_shiroikuma_subheader"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="dialog_bg"
+            android:title="@string/shiroikuma_ui_dialog_bg"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="dialog_text"
+            android:title="@string/shiroikuma_ui_dialog_text"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="dialog_title"
+            android:title="@string/shiroikuma_ui_dialog_title"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="dialog_button"
+            android:title="@string/shiroikuma_ui_dialog_button"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="dialog_border_color"
+            android:title="@string/shiroikuma_ui_dialog_border_color"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="dialog_border_dp"
+            android:title="@string/shiroikuma_ui_dialog_border_width"
+            android:layout="@layout/preference_shiroikuma_seekbar_l2"
+            app:skMin="0"
+            app:skMax="4"
+            app:skUnit="dp"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="dialog_corner_dp"
+            android:title="@string/shiroikuma_ui_dialog_corner"
+            android:layout="@layout/preference_shiroikuma_seekbar_l2"
+            app:skMin="0"
+            app:skMax="24"
+            app:skUnit="dp"
+            android:persistent="false" />
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:title="@string/shiroikuma_ui_sub_menus"
+            android:layout="@layout/preference_shiroikuma_subheader"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="menu_bg"
+            android:title="@string/shiroikuma_ui_menu_bg"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="menu_text"
+            android:title="@string/shiroikuma_ui_menu_text"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="menu_border_color"
+            android:title="@string/shiroikuma_ui_menu_border_color"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="menu_border_dp"
+            android:title="@string/shiroikuma_ui_menu_border_width"
+            android:layout="@layout/preference_shiroikuma_seekbar_l2"
+            app:skMin="0"
+            app:skMax="4"
+            app:skUnit="dp"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="menu_corner_dp"
+            android:title="@string/shiroikuma_ui_menu_corner"
+            android:layout="@layout/preference_shiroikuma_seekbar_l2"
+            app:skMin="0"
+            app:skMax="24"
+            app:skUnit="dp"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <!-- Phase 4c: the absorbed Termux:Widget — the launcher list widget's look (applied to its
+         RemoteViews on every refresh) and the three actions upstream's info page carried. -->
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_widget"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:summary="@string/shiroikuma_ui_widget_hint"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="widget_bg"
+            android:title="@string/shiroikuma_ui_widget_bg"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="widget_text"
+            android:title="@string/shiroikuma_ui_widget_text"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="widget_text_size_sp"
+            android:title="@string/shiroikuma_ui_widget_text_size"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="10"
+            app:skMax="24"
+            app:skUnit="sp"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="widget_refresh"
+            android:title="@string/shiroikuma_ui_widget_refresh"
+            android:summary="@string/shiroikuma_ui_widget_refresh_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="widget_dynamic_create"
+            android:title="@string/shiroikuma_ui_widget_dynamic_create"
+            android:summary="@string/shiroikuma_ui_widget_dynamic_create_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="widget_dynamic_remove"
+            android:title="@string/shiroikuma_ui_widget_dynamic_remove"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <!-- Phase 4c: the absorbed Termux:Float — the entry point (no launcher icon of its own) and
+         the window frame; every row restyles a running window live. -->
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_float"
+        android:layout="@layout/preference_category_shiroikuma">
+
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="float_open"
+            android:title="@string/shiroikuma_ui_float_open"
+            android:summary="@string/shiroikuma_ui_float_open_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="float_bg"
+            android:title="@string/shiroikuma_ui_float_bg"
+            android:summary="@string/shiroikuma_ui_float_bg_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="float_border_color"
+            android:title="@string/shiroikuma_ui_float_border_color"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:widgetLayout="@layout/preference_widget_color_swatch"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="float_border_dp"
+            android:title="@string/shiroikuma_ui_float_border_width"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="0"
+            app:skMax="4"
+            app:skUnit="dp"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaSeekBarPreference
+            android:key="float_corner_dp"
+            android:title="@string/shiroikuma_ui_float_corner"
+            android:layout="@layout/preference_shiroikuma_seekbar"
+            app:skMin="0"
+            app:skMax="24"
+            app:skUnit="dp"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="float_notification_text"
+            android:title="@string/shiroikuma_ui_float_notification_text"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/shiroikuma_ui_section_reset"
+        android:layout="@layout/preference_category_shiroikuma">
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="reset_ui"
+            android:title="@string/shiroikuma_ui_reset"
+            android:summary="@string/shiroikuma_ui_reset_summary"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,5 +1,12 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- shiroikuma-termux: the 白い熊 Termux UI page (Phase 4), wired in SettingsActivity.RootPreferencesFragment -->
+    <Preference
+        app:key="shiroikuma_ui"
+        app:title="@string/shiroikuma_ui_title"
+        app:summary="@string/shiroikuma_ui_root_summary"
+        app:persistent="false"/>
+
     <Preference
         app:key="termux"
         app:title="@string/termux_preferences_title"

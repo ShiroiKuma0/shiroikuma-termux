@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4): the live terminal sample at the top of the Terminal section —
+     "$ ls -la ~ ▮" drawn by TerminalSamplePreference in the current foreground on the current
+     background with the cursor block in the cursor colour, in the current font and size. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:minHeight="0dp"
+    android:paddingStart="72dp"
+    android:paddingLeft="72dp"
+    android:paddingEnd="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:id="@+id/terminal_sample"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:typeface="monospace" />
+
+    <TextView
+        android:id="@android:id/summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:textColor="@color/shiroikuma_yellow_dim"
+        android:textSize="13sp" />
+</LinearLayout>

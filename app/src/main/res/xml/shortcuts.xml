@@ -38,6 +38,34 @@
         </intent>
     </shortcut>
 
+    <!-- shiroikuma-termux (Phase 4c): the absorbed Termux:Float's entry point (no launcher icon of
+         its own) and our UI page. TermuxFloatActivity starts TermuxFloatService and finishes. -->
+    <shortcut
+        android:shortcutId="floating_terminal"
+        android:enabled="true"
+        android:icon="@drawable/ic_new_session"
+        android:shortcutShortLabel="@string/shiroikuma_shortcut_float"
+        tools:targetApi="n_mr1">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.termux"
+            android:targetClass="com.termux.window.TermuxFloatActivity"
+            android:name="android.shortcut.conversation"/>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="shiroikuma_ui"
+        android:enabled="true"
+        android:icon="@drawable/ic_settings"
+        android:shortcutShortLabel="@string/shiroikuma_ui_title"
+        tools:targetApi="n_mr1">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.termux"
+            android:targetClass="com.termux.shiroikuma.ui.ShiroikumaUiActivity"
+            android:name="android.shortcut.conversation"/>
+    </shortcut>
+
     <shortcut
         android:shortcutId="settings"
         android:enabled="true"

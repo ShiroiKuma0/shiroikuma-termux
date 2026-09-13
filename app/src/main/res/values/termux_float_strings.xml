@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (Phase 4c): Termux:Float's strings.xml (see TermuxFloatService for the
+     upstream commit). app_name → float_app_name with our name (the notification title and channel);
+     notification_action_exit is the app's own identical string; the rest unchanged. -->
+<resources>
+    <string name="float_app_name">白い熊 Termux Float</string>
+    <string name="initial_instruction_toast">Long press on window to move or resize\n\nDouble tap and drag finger up or down to change font size</string>
+    <string name="after_long_press">Drag to position and pinch to resize</string>
+
+    <string name="draw_overlay_permission_explanation">This app requires permission to draw overlays.</string>
+    <string name="grant_permission">Grant permission</string>
+
+    <string name="notification_message_visible">Touch to hide window.</string>
+    <string name="notification_message_hidden">Touch to show window.</string>
+</resources>
