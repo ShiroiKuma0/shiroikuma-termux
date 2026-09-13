@@ -83,3 +83,5 @@ afterEvaluate {
         }
     }
 }
+
+apply from: 'shiroikuma.gradle' // shiroikuma-termux fork: fork version for the mavenLocal publication — must stay the LAST line

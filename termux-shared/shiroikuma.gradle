@@ -1,0 +1,12 @@
+// --- shiroikuma-termux fork: publish termux-shared under a fork version ----------------------------
+// Applied by the LAST line of termux-shared/build.gradle. Upstream registers its `release`
+// MavenPublication (com.termux:termux-shared:0.118.0) in afterEvaluate; this afterEvaluate runs after
+// it and re-labels the version to SHIROIKUMA_TERMUX_SHARED_VERSION (gradle.properties), so a
+// `./gradlew :termux-shared:publishReleasePublicationToMavenLocal` lands as e.g.
+// com.termux:termux-shared:0.118.0-sk1 — the artifact shiroikuma-termux-api builds against.
+afterEvaluate {
+    def forkSharedVersion = (project.findProperty('SHIROIKUMA_TERMUX_SHARED_VERSION') ?: '').toString().trim()
+    if (forkSharedVersion) {
+        publishing.publications.named('release') { it.version = forkSharedVersion }
+    }
+}

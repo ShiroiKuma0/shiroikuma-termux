@@ -1,0 +1,12 @@
+// --- shiroikuma-termux fork: publish terminal-view under a fork version ----------------------------
+// Applied by the LAST line of terminal-view/build.gradle. Upstream registers its `release`
+// MavenPublication (com.termux:terminal-view:0.118.0) in afterEvaluate; this afterEvaluate runs after
+// it and re-labels the version to SHIROIKUMA_TERMUX_SHARED_VERSION (gradle.properties), so a
+// `./gradlew publishReleasePublicationToMavenLocal` lands as e.g.
+// com.termux:terminal-view:0.118.0-sk1 — pulled in by termux-shared's POM.
+afterEvaluate {
+    def forkSharedVersion = (project.findProperty('SHIROIKUMA_TERMUX_SHARED_VERSION') ?: '').toString().trim()
+    if (forkSharedVersion) {
+        publishing.publications.named('release') { it.version = forkSharedVersion }
+    }
+}
