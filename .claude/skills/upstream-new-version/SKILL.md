@@ -162,6 +162,7 @@ rebased in — they are **ported by hand**. This skill fetches them and reports 
    | Fork links | `TERMUX_GITHUB_REPO_NAME` / `_URL` / issues URL → `ShiroiKuma0/shiroikuma-termux` (Phase 3) | `TermuxConstants.java` |
    | Black-yellow icon | yellow line-art `>_` on black, all densities (Phase 2) | `app/src/main/res/drawable/ic_foreground.xml`, `mipmap-*/`, `art/ic_launcher.svg`, `fastlane/…/icon.png` |
    | 白い熊 Termux UI page + hooks | `com.termux.shiroikuma.*`, the gear long-press, the Style item, `ShiroikumaRootView` (Phase 4) | `app/src/main/java/com/termux/shiroikuma/`, `TermuxActivity.java`, `activity_termux.xml`, `AndroidManifest.xml` |
+   | Text-selection toolbar seam | `setFloatingActionModeFactory` + the `sFloatingActionModeFactory` branch before `startActionMode(…, TYPE_FLOATING)` still there (`ShiroikumaSelectionToolbar` needs it; upstream touches this file rarely, but `setActionModeCallBacks()` is where it would) | `terminal-view/src/main/java/com/termux/view/textselection/TextSelectionCursorController.java` |
    | Absorbed plugins | `com.termux.{boot,widget,window}` packages + merged manifest components (Phase 4) | `app/src/main/java/com/termux/{boot,widget,window}/` |
    | Committed agent files | `CLAUDE.md`, `.claude/skills/` tracked; only `.claude/settings.local.json` ignored | `.gitignore` |
 

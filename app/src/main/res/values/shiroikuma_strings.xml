@@ -7,6 +7,9 @@
     <string name="shiroikuma_ui_title">白い熊 Termux UI</string>
     <string name="shiroikuma_ui_root_summary">Colours, fonts, extra keys, drawer, dialogs, widget, floating terminal — live preview</string>
 
+    <!-- the terminal's context menu (the text selection's MORE…): our first row, the sessions drawer -->
+    <string name="shiroikuma_menu_show_drawer">Show side menu</string>
+
     <!-- sections -->
     <string name="shiroikuma_ui_section_eximport">Export / Import</string>
     <string name="shiroikuma_ui_section_terminal">Terminal</string>

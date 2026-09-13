@@ -11,7 +11,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.termux.terminal.TerminalBuffer;
 import com.termux.terminal.WcWidth;
@@ -33,6 +35,29 @@ public class TextSelectionCursorController implements CursorController {
     public final int ACTION_COPY = 1;
     public final int ACTION_PASTE = 2;
     public final int ACTION_MORE = 3;
+
+    /**
+     * shiroikuma-termux: a replacement for the platform floating toolbar (API 23+), installed
+     * process-wide by the app. The {@link ActionMode} it returns owns its own popup; TerminalView
+     * drives it through the same {@code hide(duration)} / {@code invalidate()} / {@code finish()}
+     * calls it makes on the platform one, and {@code callback.onGetContentRect()} still says where
+     * the selection is. Null from {@link #start} means "no toolbar" (the platform's answer to a
+     * refused {@code onCreateActionMode}).
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    public interface FloatingActionModeFactory {
+        @Nullable
+        ActionMode start(@NonNull TerminalView terminalView, @NonNull ActionMode.Callback2 callback);
+    }
+
+    @Nullable
+    private static FloatingActionModeFactory sFloatingActionModeFactory;
+
+    /** shiroikuma-termux: see {@link FloatingActionModeFactory}; null restores the platform toolbar. */
+    @RequiresApi(Build.VERSION_CODES.M)
+    public static void setFloatingActionModeFactory(@Nullable FloatingActionModeFactory factory) {
+        sFloatingActionModeFactory = factory;
+    }
 
     public TextSelectionCursorController(TerminalView terminalView) {
         this.terminalView = terminalView;
@@ -169,7 +194,7 @@ public class TextSelectionCursorController implements CursorController {
         }
 
         //noinspection NewApi
-        mActionMode = terminalView.startActionMode(new ActionMode.Callback2() {
+        ActionMode.Callback2 floatingCallback = new ActionMode.Callback2() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 return callback.onCreateActionMode(mode, menu);
@@ -211,7 +236,16 @@ public class TextSelectionCursorController implements CursorController {
 
                 outRect.set(x1, top, x2, bottom);
             }
-        }, ActionMode.TYPE_FLOATING);
+        };
+
+        // shiroikuma-termux: the house-styled popup when one is installed, else the platform toolbar.
+        //noinspection NewApi
+        if (sFloatingActionModeFactory != null) {
+            mActionMode = sFloatingActionModeFactory.start(terminalView, floatingCallback);
+            return;
+        }
+        //noinspection NewApi
+        mActionMode = terminalView.startActionMode(floatingCallback, ActionMode.TYPE_FLOATING);
     }
 
     @Override

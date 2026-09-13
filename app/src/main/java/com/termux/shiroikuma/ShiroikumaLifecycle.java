@@ -2,6 +2,7 @@ package com.termux.shiroikuma;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,8 @@ import androidx.annotation.Nullable;
 import com.termux.R;
 import com.termux.app.TermuxActivity;
 import com.termux.shiroikuma.ui.ShiroikumaChrome;
+import com.termux.shiroikuma.ui.ShiroikumaSelectionToolbar;
+import com.termux.view.textselection.TextSelectionCursorController;
 
 /**
  * shiroikuma-termux (Phase 4): the one process-wide hook — installed by a single line in
@@ -17,12 +20,17 @@ import com.termux.shiroikuma.ui.ShiroikumaChrome;
  * touching its class.
  *
  * <ul>
+ * <li>{@link #install}: also hands {@code TextSelectionCursorController} the house text-selection
+ *     toolbar ({@link ShiroikumaSelectionToolbar}) in place of the platform floating one.</li>
  * <li>{@link #onActivityCreated}: runs inside {@code super.onCreate()}, i.e. before the activity's
  *     own {@code setContentView}, and applies {@code ThemeOverlay.Shiroikuma.Activity} to the
  *     activity theme with force — so the platform / AppCompat {@code AlertDialog}s upstream builds
- *     come out black/yellow with the bordered {@code shiroikuma_dialog_bg}. For TermuxActivity it
- *     also writes the house {@code colors.properties} on first run ({@link ShiroikumaDefaults}),
- *     ahead of {@code checkForFontAndColors()} reading it.</li>
+ *     come out black/yellow with the bordered {@code shiroikuma_dialog_bg}. Every activity but
+ *     TermuxActivity (Settings, Help, About / Report, the widget's shortcut picker, the float
+ *     permission page) gets {@code ThemeOverlay.Shiroikuma.Secondary} on top: black ground, yellow
+ *     text, yellow controls — what their theme paints and no view-by-view hook reaches. For
+ *     TermuxActivity it also writes the house {@code colors.properties} on first run
+ *     ({@link ShiroikumaDefaults}), ahead of {@code checkForFontAndColors()} reading it.</li>
  * <li>{@link #onActivityStarted} / {@link #onActivityResumed}: the status/navigation bars and the
  *     {@code @id/toolbar} of every activity but TermuxActivity (whose translucent bars and inset
  *     logic upstream relies on) take the Toolbar / status bar section's colours; resumed again
@@ -36,12 +44,15 @@ public final class ShiroikumaLifecycle implements Application.ActivityLifecycleC
 
     public static void install(@NonNull Application application) {
         application.registerActivityLifecycleCallbacks(new ShiroikumaLifecycle());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            TextSelectionCursorController.setFloatingActionModeFactory(ShiroikumaSelectionToolbar::start);
     }
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
         activity.getTheme().applyStyle(R.style.ThemeOverlay_Shiroikuma_Activity, true);
         if (activity instanceof TermuxActivity) ShiroikumaDefaults.ensure(activity);
+        else activity.getTheme().applyStyle(R.style.ThemeOverlay_Shiroikuma_Secondary, true);
     }
 
     @Override

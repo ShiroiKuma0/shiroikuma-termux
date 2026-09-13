@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- shiroikuma-termux (Phase 4): the house palette, the theme of the 白い熊 Termux UI page, the
-     dialog overlays that ShiroikumaLifecycle applies to every activity, and the attrs of our
-     seekbar row. See app/src/main/java/com/termux/shiroikuma/. -->
+     overlays that ShiroikumaLifecycle applies to every activity, the attrs of our seekbar row and
+     the id of our context-menu row. See app/src/main/java/com/termux/shiroikuma/. -->
 <resources>
 
     <color name="shiroikuma_black">#FF000000</color>
     <color name="shiroikuma_yellow">#FFFFFF00</color>
     <color name="shiroikuma_yellow_dim">#FFC8C800</color>
     <color name="shiroikuma_red">#FFFF5252</color>
+
+    <!-- ShiroikumaContextMenu's own first row (opens the sessions drawer); a resource id so it can
+         never collide with TermuxActivity's small-integer CONTEXT_MENU_* ids. -->
+    <item name="shiroikuma_menu_show_drawer" type="id" />
 
     <!-- ShiroikumaSeekBarPreference: [skMin, skMax] plus, when skZeroLabel is set, one extra step
          at the left that stores 0 and reads as that label ("default"). -->
@@ -59,6 +63,36 @@
         <item name="android:alertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog.Platform</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Shiroikuma.Dialog</item>
+    </style>
+
+    <!-- Applied on top of the Activity overlay to every activity BUT TermuxActivity (Settings and its
+         sub-screens, Help, About / Report, the widget's shortcut picker, the float permission page):
+         the house palette for what their day/night theme paints and no view-by-view hook reaches —
+         black ground, yellow titles, dim-yellow summaries, yellow switches / category headings.
+         The same colour set as Theme.ShiroikumaUi above, minus that page's window flags; keep the
+         two in step. TermuxActivity stays upstream's (ShiroikumaChrome paints it view by view). -->
+    <style name="ThemeOverlay.Shiroikuma.Secondary" parent="">
+        <item name="android:windowBackground">@color/shiroikuma_black</item>
+        <item name="android:colorBackground">@color/shiroikuma_black</item>
+        <item name="colorPrimary">@color/shiroikuma_black</item>
+        <item name="colorPrimaryVariant">@color/shiroikuma_black</item>
+        <item name="colorPrimaryDark">@color/shiroikuma_black</item>
+        <item name="colorOnPrimary">@color/shiroikuma_yellow</item>
+        <item name="colorSecondary">@color/shiroikuma_yellow</item>
+        <item name="colorSecondaryVariant">@color/shiroikuma_yellow</item>
+        <item name="colorOnSecondary">@color/shiroikuma_black</item>
+        <item name="colorAccent">@color/shiroikuma_yellow</item>
+        <item name="android:colorAccent">@color/shiroikuma_yellow</item>
+        <item name="colorControlActivated">@color/shiroikuma_yellow</item>
+        <item name="colorControlNormal">@color/shiroikuma_yellow_dim</item>
+        <item name="colorControlHighlight">#33FFFF00</item>
+        <item name="colorSurface">@color/shiroikuma_black</item>
+        <item name="colorOnSurface">@color/shiroikuma_yellow</item>
+        <item name="colorOnBackground">@color/shiroikuma_yellow</item>
+        <item name="android:textColorPrimary">@color/shiroikuma_yellow</item>
+        <item name="android:textColorSecondary">@color/shiroikuma_yellow_dim</item>
+        <item name="android:textColorTertiary">@color/shiroikuma_yellow_dim</item>
+        <item name="android:textColorHint">@color/shiroikuma_yellow_dim</item>
     </style>
 
     <!-- android.app.AlertDialog (what upstream uses everywhere). Static: the border/corner sliders

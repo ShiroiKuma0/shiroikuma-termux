@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.termux.R;
 import com.termux.app.TermuxActivity;
 
 import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
@@ -34,6 +36,11 @@ import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
  * {@code activity.onContextMenuClosed(menu)}, which {@code TerminalView} needs to drop the stored
  * selection. Zero menu logic duplicated — {@link ShiroikumaRootView} funnels all four upstream
  * trigger sites here.
+ *
+ * <p>One row is ours, at the top: 「Show side menu」 opens the sessions drawer — the left pull-out
+ * that an edge swipe has to fight gesture navigation for. It is added before upstream fills the
+ * menu (same order {@code NONE}, so it sorts first) and handled here, not by
+ * {@code onContextItemSelected}.
  */
 public final class ShiroikumaContextMenu implements ContextMenu {
 
@@ -46,8 +53,9 @@ public final class ShiroikumaContextMenu implements ContextMenu {
     /** Builds, fills and shows the menu; false when upstream added nothing (no session yet). */
     public static boolean show(@NonNull final TermuxActivity activity, @NonNull View anchor) {
         final ShiroikumaContextMenu menu = new ShiroikumaContextMenu(new PopupMenu(activity, anchor).getMenu());
+        final MenuItem showDrawer = menu.add(Menu.NONE, R.id.shiroikuma_menu_show_drawer, Menu.NONE, R.string.shiroikuma_menu_show_drawer);
         activity.onCreateContextMenu(menu, anchor, null);
-        if (!menu.hasVisibleItems()) return false;
+        if (menu.size() <= 1) return false; // upstream added nothing (no session yet): stay silent, as before
 
         final Context ctx = activity;
         int ink = color(ctx, MENU_TEXT);
@@ -74,7 +82,8 @@ public final class ShiroikumaContextMenu implements ContextMenu {
                 row.setOnClickListener(v -> {
                     // selection first, then close — shareSelectedText() needs the stored selection
                     // that onContextMenuClosed() clears.
-                    activity.onContextItemSelected(item);
+                    if (item == showDrawer) activity.getDrawer().openDrawer(Gravity.START);
+                    else activity.onContextItemSelected(item);
                     dialog.dismiss();
                 });
             } else {
