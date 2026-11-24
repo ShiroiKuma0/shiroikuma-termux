@@ -6,11 +6,11 @@
 
 **The Termux terminal and Linux environment, with its plugins folded in, styled from one page, and backed up whole.**
 
-A fork of [Termux](https://github.com/termux/termux-app) with **major additions**: the **白い熊 Termux UI** page (colours, schemes and fonts with live preview — Termux:Styling absorbed — plus the extra keys, drawer, toolbar, dialogs and menus), **Export / Import** that backs up the entire prefix (`~` and `$PREFIX` as tars inside one zip, restorable into a fresh install), the sister-app **backup-automation contract**, and **Termux:Boot, Termux:Widget and Termux:Float absorbed** into the app — the floating terminal is a long-press away on the launcher icon.
+A fork of [Termux](https://github.com/termux/termux-app) with **major additions**: the **白い熊 Termux UI** page (colours, schemes and fonts with live preview — Termux:Styling absorbed — plus the extra keys, drawer, toolbar, dialogs and menus), **Export / Import** that backs up the entire prefix (`~` and `$PREFIX` as tars inside one zip, restorable into a fresh install), the sister-app **backup-automation contract**, a **full Japanese translation** with an in-app language choice, an **External apps** switch for the `RUN_COMMAND` door, and **Termux:Boot, Termux:Widget and Termux:Float absorbed** into the app — the floating terminal is a long-press away on the launcher icon.
 
 Installs **over** the stock Termux (app id `com.termux` kept so the Termux package ecosystem keeps working); the whole family — Termux, Termux API, Termux X11, Termux GUI and 白い熊 GNU Emacs — shares Android UID `com.termux` and is signed with one key, so every member must come from these forks.
 
-**📥 Latest release: [`0.118.0+2026-09-11.22-27.g45844885+008`](https://github.com/ShiroiKuma0/shiroikuma-termux/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-termux/releases)
+**📥 Latest release: [`0.118.0+2026-09-11.22-27.g45844885+011`](https://github.com/ShiroiKuma0/shiroikuma-termux/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-termux/releases)
 
 </div>
 
@@ -20,13 +20,18 @@ Installs **over** the stock Termux (app id `com.termux` kept so the Termux packa
 
 Long-press the drawer's gear (or pick **白い熊 Termux UI** from the terminal's context menu, the first row of Settings, or the launcher shortcut) and every visible surface of the app is in front of you, **previewing live on the terminal behind the translucent page** as you drag a slider or pick a colour.
 
+The page is a **folding accordion under a chip index**: a row of small chips, one per section, jumps to a section on a tap and reorders the page on a long-press drag; every section folds on its heading and starts folded. Actions are outlined pills, switches are outlined too, and every row carries an icon coloured by what it does.
+
+- **App language** — System default, English or 日本語, for this app only; the whole app is translated.
+- **External apps** — `allow-external-apps` as a switch, with the apps that hold the `RUN_COMMAND` permission and the grants that door needs; a dialog at start says so while it is off.
 - **Terminal** — background, foreground and cursor pickers (a four-slider ARGB picker with recent swatches), a **Colour scheme** list with all 114 termux-styling schemes plus the house black-and-yellow one, a **Font** list with its own glyph preview (Cascadia Code, Fantasque Sans Mono, Fira Code and Meslo bundled; *Add font…* imports any `.ttf`/`.otf` into `~/.termux/fonts`), and a font-size slider. Everything is written to Termux's own `~/.termux/colors.properties` and `font.ttf`, so the terminal itself stays stock.
 - **Extra keys row** — background, text, active colours, text size, border and corner radius, applied to every button as the row is rebuilt.
 - **Drawer / sessions** — drawer background, button text, icon tint, session text, selected-session background, dead-session text, text size.
 - **Toolbar / status bar** — the toolbar, status-bar and navigation-bar colours of Settings, Help, Report and our own page.
 - **Dialogs / menus** — background, text, title, button and border/corner styling for our dialogs, the terminal's context menu and the text-selection toolbar (COPY · PASTE · MORE…, replaced by one of ours because the platform's cannot be themed); upstream's platform dialogs and the Settings screens get the black-and-yellow overlay too.
 - **Widget** and **Floating terminal** — the absorbed plugins' colours and frames, restyled on every placed widget and on a running floating window.
-- Long-press any colour or size row to return it to the house default; **Reset** clears the page, the colour file and the font in one go.
+- **This page** and **Buttons & switches** — the colours of the page itself, every item a role of its own.
+- Long-press any colour or size row to return it to the house default; **Maintenance** holds *Reset section order* and *Reset all to defaults*.
 
 Termux:Styling is thereby absorbed: its schemes and fonts ship inside the app, and the *Style* slot of the context menu opens this page.
 
@@ -34,7 +39,7 @@ Termux:Styling is thereby absorbed: its schemes and fonts ship inside the app, a
 
 ## 💾 Export / Import — the whole prefix in one zip
 
-**Export / Import…** is the first row of the page. One `shiroikuma-termux_<yyyy-MM-dd_HH-mm-ss>.zip` in a directory you choose holds:
+**Export / Import…** is the main pill of its section. One `shiroikuma-termux_<yyyy-MM-dd_HH-mm-ss>.zip` in a directory you choose holds:
 
 - **Settings** — the app preferences, `termux.properties`, `colors.properties`, `font.ttf` and your imported fonts;
 - **Home** — `/data/data/com.termux/files/home` as `data/home.tar`;

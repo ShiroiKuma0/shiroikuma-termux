@@ -4,6 +4,30 @@ This file carries the history of **白い熊 Termux** — 白い熊's fork of [T
 
 Versions are `<upstream version>+<upstream base date>.<HH-MM>.g<sha8>+<NNN>`: `custom` is rebased onto every commit of upstream's `master`, and the pin names the upstream commit the release is built on; `versionCode` = upstream code × 10000 + N. Every release section states its upstream base, then what is built on top of stock; sections after the first are per-release deltas and carry an "Upstream since" subsection distilled from the sync(s) that moved the base.
 
+## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+011 — 2026-11-24
+
+Built on the same upstream base as +008 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180011`. Changes since +008 (builds +009 and +010 were not released; +010 crashed on opening the UI page, fixed here):
+
+### Major features
+- **The whole app in Japanese.** Upstream Termux has no Japanese translation; the fork now carries a full one: `values-ja/` twins of every string file of `app`, `termux-shared` and `terminal-view` — 439 keys, key sets and placeholders equal to the English files.
+- **App language** — the first section of the 白い熊 Termux UI page: 「Language: …」 opens a list with 「System default」, English and 日本語 and applies the choice at once, for this app only. The choice is stored with the page's settings (it travels in the export), is re-asserted at every start, and below Android 13 also reaches notifications, the launcher widget and automation replies. The app declares its languages to the system (`res/xml/locales_config.xml`).
+- **External apps** — a new section of the UI page for the `RUN_COMMAND` door that other apps (白い熊 自由作業盤 first of all) start commands through: 「Allow external apps」 is the `allow-external-apps` line of `termux.properties` as a switch (an existing line is replaced, a commented-out one revived, otherwise the line is appended; a symlinked file keeps its link; the door opens or closes at once), with the apps that hold the permission, the battery-optimisation state and the 「Display over other apps」 grant beside it. While the property is off, Termux says so once per start in a dialog — 「Open settings」, Cancel, 「Never show again」. The `RUN_COMMAND` contract itself is upstream's, unchanged.
+
+### UI & theming
+- **The UI page is a folding accordion under a chip index.** On top a thick 「App settings ›」 pill to Termux's own settings; under it a wrapping row of small chips, one per section, each with the section's icon — tap a chip to unfold its section and scroll to it, long-press and drag to reorder (the chips move under the finger, the sections follow). Every section folds on a tap of its heading (› folded, ⌄ open) and starts folded; order and fold state are remembered and exported. The section icons take one of seven colours by what a section is.
+- **Every row redrawn**: an icon in every label, coloured by what the row does and sized by the label; rows that open or run something are outlined pills that hug their label (the main one of a section 3 dp and bold, 「Remove dynamic shortcuts」 red); rows with an explanation get a bold label, dim-gold text and a thin left rule; a colour's hex now stands at the right beside its swatch, so the explanations it used to overwrite are shown; 2 dp row padding and smaller indents.
+- **Outlined switches** — a round 2 dp outline with a solid dot, never filled — on the page and in the terminal's menu.
+- **The page's own colours are settable**: new sections 「This page」 (ground, headings, labels, descriptions, values, section lines, warnings, row icons, index chips, swatch frame, slider, the seven section-icon colours) and 「Buttons & switches」 (button frame and text, switch on and off). No layout of the page carries a colour any more.
+- **Maintenance** replaces Reset: 「Reset section order」 and 「Reset all to defaults」 (which now keeps the app language and the page's arrangement).
+- **Pill menus.** The terminal's long-press menu and the ⋮ overflow of Report and Text IO show every action as a full-width outlined pill with a role-coloured icon (connect green, share orange, contact light blue, secret rose), a › on rows that open something, a red 「Kill process」, a switch on 「Keep screen on」 and clear group dividers. The five icon colours are settable under Dialogs / menus.
+- **Menu panel and text-selection bar**: a 2 dp frame with rounded corners by default (was 1 dp, square), and COPY · PASTE · MORE… are outlined pills instead of bare text.
+- **Dialog buttons**: the one action a dialog is for is a 3 dp bold pill, every other a 1.25 dp one.
+
+### Fixes & behaviour
+- The start-up dialog's 「Open settings」 and `ShiroikumaUiActivity.open(context, key)` unfold the named section and scroll to it.
+- 「Battery optimisation」 and 「Display over other apps」 open the system's own page once the grant is given, instead of doing nothing.
+- The word “folder” is gone from the fork's strings and comments: a directory is a directory.
+
 ## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+008 — 2026-09-13
 
 Built on the same upstream base as +006 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180008`. Changes since +006:
