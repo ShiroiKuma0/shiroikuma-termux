@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: the strings the folding 白い熊 Termux UI page added — the App settings pill,
+     the App language section, Maintenance, and the colour roles of the page itself (sections
+     「This page」 and 「Buttons & switches」). Japanese: values-ja/shiroikuma_page_strings.xml,
+     same keys. -->
+<resources>
+    <string name="shiroikuma_page_app_settings">App settings</string>
+    <string name="shiroikuma_page_app_settings_desc">Termux’s own settings: the terminal view, the keyboard, debugging and the plugins.</string>
+    <string name="shiroikuma_ui_section_language">App language</string>
+    <string name="shiroikuma_lang_row">Language: %1$s</string>
+    <string name="shiroikuma_lang_row_desc">For this app only; it changes at once.</string>
+    <string name="shiroikuma_lang_system">System default</string>
+    <string name="shiroikuma_ui_section_maintenance">Maintenance</string>
+    <string name="shiroikuma_page_reset_order">Reset section order</string>
+    <string name="shiroikuma_page_reset_order_desc">Puts the sections of this page back in their original order. Open and folded sections stay as they are.</string>
+    <string name="shiroikuma_page_reset_order_done">Section order reset</string>
+    <string name="shiroikuma_ui_section_page">This page</string>
+    <string name="shiroikuma_page_hint">The colours of this settings page itself. Long-press a colour row to restore its default. Long-press an entry of the index at the top and drag it to reorder the sections.</string>
+    <string name="shiroikuma_page_bg">Background</string>
+    <string name="shiroikuma_page_heading">Headings</string>
+    <string name="shiroikuma_page_label">Row labels</string>
+    <string name="shiroikuma_page_note">Descriptions and the left rule</string>
+    <string name="shiroikuma_page_value">Values</string>
+    <string name="shiroikuma_page_divider">Lines between sections</string>
+    <string name="shiroikuma_page_warning">Warnings</string>
+    <string name="shiroikuma_page_icon">Row icons</string>
+    <string name="shiroikuma_page_icon_desc">For rows that only show or set something. The other icons take the menu icon colours under “Dialogs / menus”.</string>
+    <string name="shiroikuma_page_chip_frame">Index: frame</string>
+    <string name="shiroikuma_page_chip_text">Index: text</string>
+    <string name="shiroikuma_page_swatch_frame">Colour swatch frame</string>
+    <string name="shiroikuma_page_slider">Slider</string>
+    <string name="shiroikuma_page_slider_track">Slider track</string>
+    <string name="shiroikuma_page_sub_section_icons">Section icons of this page</string>
+    <string name="shiroikuma_page_section_base">The app and its settings</string>
+    <string name="shiroikuma_page_section_controls">Controls: what you operate</string>
+    <string name="shiroikuma_page_section_words">Words, written and read</string>
+    <string name="shiroikuma_page_section_frame">The frame and its boxes</string>
+    <string name="shiroikuma_page_section_reach">Reaching out: asks, offers, hands over</string>
+    <string name="shiroikuma_page_section_warning">Warning: resets, wipes</string>
+    <string name="shiroikuma_page_section_flash">A brief flash</string>
+    <string name="shiroikuma_ui_section_controls">Buttons &amp; switches</string>
+    <string name="shiroikuma_controls_hint">The pills and switches of this page. The two switch colours also draw the switch in the terminal’s menu.</string>
+    <string name="shiroikuma_page_pill_frame">Button frame</string>
+    <string name="shiroikuma_page_pill_text">Button text</string>
+    <string name="shiroikuma_page_switch_on">Switch, on</string>
+    <string name="shiroikuma_page_switch_off">Switch, off</string>
+</resources>

@@ -73,7 +73,7 @@ through all of it, so the literal alone says nothing about how current we are.
 | namespace (R/BuildConfig pkg) | `com.termux` (**never rename**) | `app/build.gradle` |
 | sharedUserId | `com.termux` (**never rename**) | `app/src/main/AndroidManifest.xml` → `${TERMUX_PACKAGE_NAME}` placeholder |
 | App label | `白い熊 Termux` — **done (Phase 3)** | `TermuxConstants.TERMUX_APP_NAME` in `termux-shared/src/main/java/com/termux/shared/termux/TermuxConstants.java` (feeds notification channels / titles / crash reports / the default logcat tag) + the `<!ENTITY TERMUX_APP_NAME "白い熊 Termux">` in **both** `app/src/main/res/values/strings.xml` and `termux-shared/src/main/res/values/strings.xml` (launcher label = `application_name` = the entity); `TERMUX_API_APP_NAME` / its entity → `白い熊 Termux API`. `TERMUX_SITE` / `TERMUX_WIKI` are pinned to the literal `Termux Site` / `Termux Wiki` (they label upstream's manual, not us). `TERMUX_{BOOT,FLOAT,STYLING,TASKER,WIDGET}_APP_NAME` and their entities stay upstream's **on purpose** (Phase 4c): they label the upstream plugin projects in About's link list; the absorbed code shows `白い熊 Termux Widget` / `白い熊 Termux Float` from its own resources |
-| UI page | `白い熊 Termux UI` — **done (Phase 4a appearance, Phase 4b Export/Import)**; opened by a long-press on the drawer gear, from the context-menu item (upstream's "Style" slot, `action_style_terminal` → `白い熊 Termux UI`) and from the first row of the Settings root screen — see "UI page" below | `app/src/main/java/com/termux/shiroikuma/{ShiroikumaLifecycle,ShiroikumaDefaults}.java` + `ui/` (activity, fragment, theme/chrome/style, pickers, dialogs, context menu, root view, `ExportImportPanel`, `AutomationTokenPreference`), `res/values/shiroikuma_{strings,theme}.xml`, `res/xml/preferences_shiroikuma_ui.xml`, `res/layout/preference_*shiroikuma*.xml` + `activity_shiroikuma_ui.xml` + `preference_widget_{color_swatch,regenerate}.xml`, `res/drawable/shiroikuma_{dialog_bg,pill_bg}.xml`, `assets/shiroikuma/{colors,fonts}/`; upstream hooks (one-liners): `TermuxActivity` (`onCreate`, `setSettingsButtonView`, `onContextItemSelected`, `setExtraKeysView`, `reloadActivityStyling`), `TermuxSessionsListViewController.getView`, `TermuxApplication.onCreate`, `SettingsActivity.RootPreferencesFragment`, `activity_termux.xml` (root class), `root_preferences.xml`, `AndroidManifest.xml` (the activity), `proguard-rules.pro`, and in `terminal-view` the `TextSelectionCursorController.setFloatingActionModeFactory` seam (the text-selection toolbar) |
+| UI page | `白い熊 Termux UI` — **done (Phase 4a appearance, Phase 4b Export/Import)**; opened by a long-press on the drawer gear, from the context-menu item (upstream's "Style" slot, `action_style_terminal` → `白い熊 Termux UI`) and from the first row of the Settings root screen — see "UI page" below | `app/src/main/java/com/termux/shiroikuma/{ShiroikumaLifecycle,ShiroikumaDefaults}.java` + `ui/` (activity, fragment, theme/chrome/style, pickers, dialogs, context menu, root view, `ExportImportPanel`, `AutomationTokenPreference`), `res/values/shiroikuma_{strings,page_strings,access_strings,menu_strings,theme}.xml` (+ `values-ja/`), `res/xml/{preferences_shiroikuma_ui,locales_config}.xml`, `res/layout/preference_*shiroikuma*.xml` + `activity_shiroikuma_ui.xml` + `preference_widget_{color_swatch,regenerate}.xml`, `res/drawable/shiroikuma_dialog_bg.xml`, `assets/shiroikuma/{colors,fonts}/`; upstream hooks (one-liners): `TermuxActivity` (`onCreate`, `setSettingsButtonView`, `onContextItemSelected`, `setExtraKeysView`, `reloadActivityStyling`), `TermuxSessionsListViewController.getView`, `TermuxApplication.onCreate`, `SettingsActivity.RootPreferencesFragment`, `activity_termux.xml` (root class), `root_preferences.xml`, `AndroidManifest.xml` (the activity), `proguard-rules.pro`, and in `terminal-view` the `TextSelectionCursorController.setFloatingActionModeFactory` seam (the text-selection toolbar) |
 | Export / Import + backup engine | **done (Phase 4b)** — one ZIP (`shiroikuma-termux_<yyyy-MM-dd_HH-mm-ss>.zip`, `.part` then rename) of `settings` + tars of `home` and `usr` (白い熊's `baktermux` in the app); import streams the ZIP, restores settings and swaps the trees in from staging — see "UI page → Export / Import" below | `app/src/main/java/com/termux/shiroikuma/backup/{TermuxBackup,TarPack,TarUnpack,PrefsJson,ExportDir,ProcessReaper}.java` (Apache Commons Compress `1.27.1`, declared in `app/shiroikuma.gradle`; `-dontwarn org.tukaani.**` / `com.github.luben.**` / `org.brotli.**` in `app/proguard-rules.pro`), `ui/ExportImportPanel.java` |
 | 保存復元 automation contract v2 | **done (Phase 4b)** — §1 exported receiver, §2 gate, §2a provider data door, §3 progress, §4 manifest; every run in one foreground `dataSync` service — see "UI page → Automation" below | `app/src/main/java/com/termux/shiroikuma/automation/{AutomationAuth,AutomationCallers,AutomationJobs,AutomationProgress,StateExportReceiver,AutomationProvider,AutomationDataService}.java`, `AndroidManifest.xml` (`<queries>`, `FOREGROUND_SERVICE_DATA_SYNC`, receiver / provider / service / 3 `<meta-data>`), `ui/AutomationTokenPreference.java` + `res/layout/preference_widget_regenerate.xml` |
 | App icon | black-yellow traced `>_` prompt in the rounded square (yellow `#FFFF00` line-art on black) — **done (Phase 2)** | `design/shiroikuma-termux-icon.svg` (the source) → `tools/icon/emit_launcher.py` → `app/src/main/res/drawable/ic_foreground.xml` (adaptive foreground), `app/src/main/res/mipmap-{m,h,xh,xxh,xxxh}dpi/ic_launcher{,_round}.png` (legacy), `fastlane/metadata/android/en-US/images/icon.png`; upstream's `art/` generator is superseded by `tools/icon/` |
@@ -94,12 +94,45 @@ Every change ends in `ShiroikumaStyle.changed(ctx)` → throttled (≤ 1 per 80 
 hook at its top — so everything previews live behind the page. The page's `onResume` fires one more
 reload (an opaque SAF picker may have stopped the terminal in between).
 
+**The page is a folding accordion under a chip index** (the black-yellow skill's UI-page rule,
+applied in +010). Top to bottom: the thick pill 「App settings ›」 (→ `SettingsActivity`; not a
+section), the chip index (`ShiroikumaIndexPreference` + `ShiroikumaFlowLayout`: one variable-length
+chip per section with the section's icon and colour; tap = unfold + smooth-scroll, long-press =
+drag, the chips reorder live and the sections follow on drop), then the sections —
+`ShiroikumaSectionCategory`s with key `section_<id>`, every one folded by default, heading = icon in
+the section's colour, bold underlined title, › folded / ⌄ open, the 1 px line above it always kept.
+The registry `ShiroikumaUiFragment.SECTIONS` (id, icon, one of the seven section-icon colour roles)
+is read by heading and chip alike; **the default order is the order of the XML**, App language
+first, no two neighbours of one colour: language (light blue) · eximport (orange) · terminal
+(yellow) · external_apps (orange) · extrakeys (green) · drawer (heavy blue) · dialogs (orange) ·
+toolbar (heavy blue) · widget (orange) · float (yellow) · buttons (green; never the id `controls` —
+`section_controls` is a colour roles key and the category would take its place) · page (yellow) ·
+maintenance (red). Order and fold state: `ShiroikumaPageState` → `ui_section_order` /
+`ui_sections_open` in `shiroikuma_ui` (exported; kept by 「Reset all to defaults」, like
+`app_language`).
+
+**Every row is drawn in one place**, `ShiroikumaRows.bind` (through `onCreateAdapter` → a
+`PreferenceGroupAdapter` subclass), from the page's colour roles — **no layout of the page and not
+its theme carry a colour** (`Theme.ShiroikumaUi` keeps only the black `windowBackground`, which the
+platform draws before code runs; the page is exempt from `ThemeOverlay.Shiroikuma.Secondary`): an
+icon in every label (`ShiroikumaIcons`, 1.25 × the label's text size, floor 18 dp; icon and role
+from the key table `ShiroikumaRows.KEYS`, a role that carries a meaning shows its own colour),
+action rows as pills that hug their label with the icon inside (`ShiroikumaActionPreference`:
+`app:skMain` 3 dp bold, `app:skOpens` ›, `app:skDestructive` red), explained rows with a bold label,
+dim-gold text and a 2 dp left rule, value rows plain (`ShiroikumaPreference.setSummaryValue`; a
+colour's hex stands at the right via `setValueText`, so the summary is free for the explanation),
+every switch the outlined one (`ShiroikumaRows.outlineSwitch`, a `LayerDrawable` dot — never an
+`InsetDrawable`), 2 dp row padding (3 dp around a pill), indents 16 / 32 / 48 dp. A change of a
+page role repaints the page (`repaintPage`).
+
 Sections and prefs keys (file `shiroikuma_ui`; an absent key = house default; long-press a colour /
 size row = default):
 
 | Section | Rows → keys |
 | --- | --- |
-| Export / Import | first section (no hairline): 「Export / Import…」 (the panel) · 「Export directory」 (absolute path in yellow, red "not set"; a red second line "All-files access not granted — tap to grant" while `Environment.isExternalStorageManager()` is false on API 30+ — tap opens the grant page, otherwise the SAF tree picker; long-press = the picker regardless) · 「Last export」 (newest `shiroikuma-termux_*.zip`, queried on every resume on a background thread; red "none" / "no directory") · 「Automation export」 (switch, default ON) · 「Use authorization token?」 (switch, default OFF) · token row (`AutomationTokenPreference`, visible only while the token is required; tap copies, Regenerate pill → confirm). Prefs: `shiroikuma_eximport` (`export_dir` absolute path, `export_dir_uri`), `shiroikuma_automation` (`automation_enabled`, `automation_require_token`, `automation_token`) — both device-local, all writes `commit()`, never exported |
+| App language | first section and first chip: 「Language: ‹current›」 (main pill, ›) → `AppLanguage.showPicker` — 「System default」 first, then every tag of `res/xml/locales_config.xml` (`en`, `ja`; the manifest's `android:localeConfig`), plain rows, only the current one in a 3 dp pill. Key `app_language` (BCP-47, empty = system); see "App language" below |
+| Export / Import | 「Export / Import…」 (the panel) · 「Export directory」 (absolute path in yellow, red "not set"; a red second line "All-files access not granted — tap to grant" while `Environment.isExternalStorageManager()` is false on API 30+ — tap opens the grant page, otherwise the SAF tree picker; long-press = the picker regardless) · 「Last export」 (newest `shiroikuma-termux_*.zip`, queried on every resume on a background thread; red "none" / "no directory") · 「Automation export」 (switch, default ON) · 「Use authorization token?」 (switch, default OFF) · token row (`AutomationTokenPreference`, visible only while the token is required; tap copies, Regenerate pill → confirm). Prefs: `shiroikuma_eximport` (`export_dir` absolute path, `export_dir_uri`), `shiroikuma_automation` (`automation_enabled`, `automation_require_token`, `automation_token`) — both device-local, all writes `commit()`, never exported |
+| External apps | hint row; 「Allow external apps」 (switch = the `allow-external-apps` line of the properties file upstream reads — first existing of `~/.termux/termux.properties`, `~/.config/termux/termux.properties`; `ExternalAppsAccess.setAllowed` replaces the line / revives a commented one / appends, through the canonical path so a symlinked file keeps its link, then reloads `TermuxAppSharedProperties`; switching ON asks first) · 「Warn at start while off」 (switch, default ON; prefs `shiroikuma_external_apps` → `warn_at_start`, device-local, never exported) · 「Apps holding the permission」 (labels from `getPackagesHoldingPermissions(com.termux.permission.RUN_COMMAND)`, our own UID left out; red "None") · 「Battery optimisation」 · 「Display over other apps」 (red while missing, tap = the grant). All re-read on every resume. Section key `section_external_apps` — `ShiroikumaUiActivity.open(ctx, key)` scrolls to it |
 | Terminal | live sample row; Colours: Background · Foreground · Cursor (picker with alpha **disabled**, written as `key=#RRGGBB` lines to `~/.termux/colors.properties` by `TerminalStyleFiles`), Colour scheme… (`terminal_scheme`, display only; the 114 termux-styling schemes + house `shiroikuma.properties` from `assets/shiroikuma/colors/`); Font: Font (`terminal_font`, display only — the truth is `~/.termux/font.ttf`; bundled `assets/shiroikuma/fonts/` + `~/.termux/fonts/*.ttf\|otf` + "Add font…" SAF import), Font size (`TermuxAppSharedPreferences.setFontSize`, px) |
 | Extra keys row | `extrakeys_bg` · `extrakeys_text` · `extrakeys_active_text` · `extrakeys_active_bg` · `extrakeys_text_size_sp` (0 = default) · `extrakeys_border_dp` · `extrakeys_border_color` · `extrakeys_corner_dp` — applied via `ExtraKeysView.setButtonColors` + an `OnHierarchyChangeListener` styling each `MaterialButton` as `reload()` adds it |
 | Drawer / sessions | `drawer_bg` · `drawer_button_text` · `drawer_icon_tint` · `session_text` · `session_selected_bg` · `session_dead_text` · `session_text_size_sp` |
@@ -107,10 +140,48 @@ size row = default):
 | Dialogs / menus | `dialog_bg` · `dialog_text` · `dialog_title` · `dialog_button` · `dialog_border_color` · `dialog_border_dp` · `dialog_corner_dp`; `menu_bg` · `menu_text` · `menu_border_color` · `menu_border_dp` · `menu_corner_dp` — our own dialogs (`ShiroikumaDialogs`), the context menu (`ShiroikumaRootView` → `ShiroikumaContextMenu`; its first row 「Show side menu」 is ours and opens the sessions drawer) and the terminal's text-selection toolbar COPY · PASTE · MORE… (`ShiroikumaSelectionToolbar`, an `ActionMode` of ours with a non-focusable `PopupWindow`, injected through `TextSelectionCursorController.setFloatingActionModeFactory` from `ShiroikumaLifecycle.install` — the platform floating toolbar re-wraps the window context in `Theme.DeviceDefault` and cannot be themed); upstream's platform `AlertDialog`s get the static black/yellow `ThemeOverlay.Shiroikuma.Dialog.Platform` applied by `ShiroikumaLifecycle.onActivityCreated`, and every activity but TermuxActivity (Settings and its sub-screens, Help, About / Report, the widget's shortcut picker, the float permission page) also gets the static `ThemeOverlay.Shiroikuma.Secondary` — black ground, yellow titles, dim-yellow summaries, yellow switches |
 | Widget (Phase 4c) | hint row; `widget_bg` · `widget_text` · `widget_text_size_sp` (10–24, default 16) — pushed to every placed widget's `RemoteViews` via `TermuxWidgetProvider.refreshAppWidgets(ctx, ids, true)`, debounced 150 ms; actions 「Refresh widgets」 (toast with the ids / "none"), 「Create dynamic shortcuts」 / 「Remove dynamic shortcuts」 (`ShortcutUtils`, API 25+; they hang off the app's launcher icon next to the 5 static ones) |
 | Floating terminal (Phase 4c) | 「Open floating terminal」 (`startService(TermuxFloatService)`; the overlay window comes up over the page); `float_bg` · `float_border_color` · `float_border_dp` (0–4, default 1) · `float_corner_dp` (0–24, default 8) · `float_notification_text` (string; tap → `ShiroikumaDialogs.inputDialog`, empty / long-press = upstream's "Touch to hide/show window.") — each change → `TermuxFloatService.reloadStyle()` on a running window |
-| Reset | confirm → clear `shiroikuma_ui`, house `colors.properties`, delete `font.ttf`, default font size, reload + `recreate()`; also refreshes the widgets and the floating window |
+| Buttons & switches | `pill_frame` · `pill_text` · `switch_on` · `switch_off` (default `#8C8C00`) — the page's pills and switches; the switch pair also draws the switch of the terminal's menu (`ShiroikumaMenus.switchDrawable`) |
+| This page | `page_bg` · `page_heading` · `page_label` · `page_note` (descriptions + left rule, `#C8C800`) · `page_value` · `page_divider` (`#B3B300`) · `page_warning` · `page_icon` · `chip_frame` · `chip_text` · `swatch_frame` · `slider` · `slider_track`; sub-heading 「Section icons of this page」: `section_base` · `section_controls` (`#00A550`) · `section_words` (`#00B0FF`) · `section_frame` (`#0066FF`) · `section_reach` (`#FF8000`) · `section_warning` (`#FF0000`) · `section_flash` (`#FF3D7F`, unused by any section) |
+| Maintenance | 「Reset section order」 (`ShiroikumaPageState.resetOrder`) · 「Reset all to defaults」: confirm → clear `shiroikuma_ui` (keeping `app_language`, the section order and the fold state), house `colors.properties`, delete `font.ttf`, default font size, reload + `recreate()`; also refreshes the widgets and the floating window |
 
 Bookkeeping keys: `recent_colors` (the picker's swatches, CSV), `defaults_written` (first-run marker of
 `ShiroikumaDefaults`, which writes the house `colors.properties` once when none exists).
+
+#### External apps — the `allow-external-apps` check
+
+`RunCommandService` (upstream's, untouched — the RUN_COMMAND contract is byte for byte upstream's)
+answers only while `allow-external-apps = true`; 白い熊 自由作業盤 starts its commands through it.
+`ExternalAppsAccess.maybeWarn(activity)` — one line in `ShiroikumaLifecycle.onActivityResumed` for
+TermuxActivity — shows a dialog once per process while the property is off: 「Open settings」 (main
+pill → the UI page scrolled to the External apps section), Cancel, and a 「Never show again」 box
+(= the section's 「Warn at start while off」 switch). Silent while `$PREFIX` is empty (before the
+bootstrap). A restore never switches the property on (the tighten-only rule below), so after a
+restore on a new phone it is switched on here by hand. Strings: `values/shiroikuma_access_strings.xml`
+with its Japanese twin in `values-ja/`.
+
+Action rows of the page (App settings, Language, Export / Import…, Battery optimisation and Display
+over other apps — the grant while missing, the system's page of it once given —, Refresh widgets,
+the dynamic shortcuts (Remove is red), Open floating terminal, the two resets) are
+`ShiroikumaActionPreference`s (`preference_shiroikuma_action.xml`); only the pill is pressable.
+Dialog pills: `ShiroikumaDialogs.mainPill` (3 dp, bold) for the one action, `pill` (1.25 dp) for the rest.
+
+#### App language and the Japanese translation
+
+`AppLanguage` (`com.termux.shiroikuma`): the tag lives in `shiroikuma_ui` → `app_language` and is
+**re-asserted at every process start** (`ShiroikumaLifecycle.install` → `AppLanguage.reassert`; EMUI
+drops the system's per-app locale across a sideload update). AppCompat activities follow
+`AppCompatDelegate.setApplicationLocales` (Android 13+: `LocaleManager` directly, because AppCompat
+finds no manager while no activity exists). Below Android 13 that never reaches the application
+context, so `localize()` lays the locale over the **application's own resources** (shared by the
+services, receivers and providers: notifications, the widget, automation replies) at start and
+after every configuration change, and over every non-AppCompat activity in `onActivityCreated`.
+
+**The app is fully translated into Japanese** (upstream has no Japanese): every `values/` string
+file of `app`, `termux-shared` and `terminal-view` has its `values-ja/` twin with the same key set
+(439 keys at +010; the three files with a `<!DOCTYPE>` entity block repeat it). A string added
+anywhere gets its Japanese line in the same change — compare the key sets before a build is called
+done. Glossary in use: terminal 端末 · session セッション · export / import 書き出し / 読み込み ·
+directory ディレクトリ · on / off 入 / 切 · default 既定 · reset 初期化 · copy 複写 · border 枠.
 
 #### Export / Import (Phase 4b)
 

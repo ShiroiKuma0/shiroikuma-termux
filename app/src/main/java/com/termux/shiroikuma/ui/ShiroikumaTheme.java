@@ -68,6 +68,13 @@ public final class ShiroikumaTheme {
     public static final String MENU_BORDER_COLOR = "menu_border_color";
     public static final String MENU_BORDER_DP = "menu_border_dp";
     public static final String MENU_CORNER_DP = "menu_corner_dp";
+    // --- menus: the icon colour of a row says what the row does (pill menus); "view" rows use MENU_TEXT ---
+    public static final String MENU_ICON_CONNECT = "menu_icon_connect";
+    public static final String MENU_ICON_SHARE = "menu_icon_share";
+    public static final String MENU_ICON_CONTACT = "menu_icon_contact";
+    public static final String MENU_ICON_BLOCK = "menu_icon_block";
+    /** Frame, icon and label of a destructive row. */
+    public static final String MENU_DELETE = "menu_delete";
     // --- absorbed plugins (Phase 4c): the launcher widget's list and the floating terminal's frame ---
     public static final String WIDGET_BG = "widget_bg";
     public static final String WIDGET_TEXT = "widget_text";
@@ -78,6 +85,41 @@ public final class ShiroikumaTheme {
     public static final String FLOAT_CORNER_DP = "float_corner_dp";
     /** The floating terminal's notification text; absent = upstream's "Touch to hide/show window." */
     public static final String FLOAT_NOTIFICATION_TEXT = "float_notification_text";
+    // --- the UI page itself: every item of the page is a role of its own ---
+    public static final String PAGE_BG = "page_bg";
+    public static final String PAGE_HEADING = "page_heading";
+    public static final String PAGE_LABEL = "page_label";
+    /** Descriptions, loose notes and the 2 dp left rule of an explained row. */
+    public static final String PAGE_NOTE = "page_note";
+    public static final String PAGE_VALUE = "page_value";
+    /** The 1 px line between sections. */
+    public static final String PAGE_DIVIDER = "page_divider";
+    public static final String PAGE_WARNING = "page_warning";
+    /** The icon of a row that only views / opens / sets something. */
+    public static final String PAGE_ICON = "page_icon";
+    public static final String CHIP_FRAME = "chip_frame";
+    public static final String CHIP_TEXT = "chip_text";
+    public static final String SWATCH_FRAME = "swatch_frame";
+    public static final String SLIDER = "slider";
+    public static final String SLIDER_TRACK = "slider_track";
+    // --- pills and switches of the page (the switch pair also draws the menu's switch) ---
+    public static final String PILL_FRAME = "pill_frame";
+    public static final String PILL_TEXT = "pill_text";
+    public static final String SWITCH_ON = "switch_on";
+    public static final String SWITCH_OFF = "switch_off";
+    // --- the seven section-icon colours: what kind of thing a section is ---
+    public static final String SECTION_BASE = "section_base";
+    public static final String SECTION_CONTROLS = "section_controls";
+    public static final String SECTION_WORDS = "section_words";
+    public static final String SECTION_FRAME = "section_frame";
+    public static final String SECTION_REACH = "section_reach";
+    public static final String SECTION_WARNING = "section_warning";
+    public static final String SECTION_FLASH = "section_flash";
+    // --- the page's arrangement and the app language (strings; kept by a reset) ---
+    /** BCP-47 tag of the app language, absent / empty = the system's. See AppLanguage. */
+    public static final String APP_LANGUAGE = "app_language";
+    public static final String SECTION_ORDER = "ui_section_order";
+    public static final String SECTIONS_OPEN = "ui_sections_open";
     // --- terminal bookkeeping (display only; the truth is ~/.termux) ---
     public static final String TERMINAL_SCHEME = "terminal_scheme";
     public static final String TERMINAL_FONT = "terminal_font";
@@ -105,7 +147,29 @@ public final class ShiroikumaTheme {
             case MENU_BG:
             case WIDGET_BG:
             case FLOAT_BG:
+            case PAGE_BG:
                 return BLACK;
+            case PAGE_NOTE:
+            case SLIDER_TRACK:
+                return YELLOW_DIM;
+            case PAGE_DIVIDER:
+                return 0xFFB3B300; // 70 % of the way from black to yellow
+            case PAGE_WARNING:
+                return RED;
+            case SWITCH_OFF:
+                return 0xFF8C8C00; // opaque dim yellow, never a faded one
+            case SECTION_CONTROLS:
+                return 0xFF00A550; // heavy green
+            case SECTION_WORDS:
+                return 0xFF00B0FF; // light blue
+            case SECTION_FRAME:
+                return 0xFF0066FF; // heavy blue
+            case SECTION_REACH:
+                return 0xFFFF8000; // orange
+            case SECTION_WARNING:
+                return 0xFFFF0000; // red
+            case SECTION_FLASH:
+                return 0xFFFF3D7F; // rose
             case EXTRAKEYS_ACTIVE_TEXT:
                 return WHITE;
             case EXTRAKEYS_ACTIVE_BG:
@@ -113,9 +177,20 @@ public final class ShiroikumaTheme {
                 return SELECTED;
             case SESSION_DEAD_TEXT:
                 return RED;
+            case MENU_ICON_CONNECT:
+                return 0xFF00A550; // heavy green
+            case MENU_ICON_SHARE:
+                return 0xFFFF8000; // orange
+            case MENU_ICON_CONTACT:
+                return 0xFF00B0FF; // light blue
+            case MENU_ICON_BLOCK:
+                return 0xFFFF3D7F; // rose
+            case MENU_DELETE:
+                return 0xFFFF0000; // red
             default:
                 // extrakeys_text/border, drawer_button_text/icon_tint, session_text, toolbar_text/icon,
-                // dialog_text/title/button/border, menu_text/border, widget_text, float_border_color
+                // dialog_text/title/button/border, menu_text/border, widget_text, float_border_color,
+                // page_heading/label/value/icon, chip_*, swatch_frame, slider, pill_*, switch_on, section_base
                 return YELLOW;
         }
     }
@@ -136,9 +211,9 @@ public final class ShiroikumaTheme {
             case DIALOG_CORNER_DP:
                 return 8;
             case MENU_BORDER_DP:
-                return 1;
+                return 2;
             case MENU_CORNER_DP:
-                return 0;
+                return 14;
             case WIDGET_TEXT_SIZE_SP:
                 return 16;
             case FLOAT_BORDER_DP:
@@ -181,10 +256,26 @@ public final class ShiroikumaTheme {
         e.apply();
     }
 
-    /** Wipes every slot back to the house default, keeping only the first-run marker. */
+    /**
+     * Wipes every colour and size back to the house default. Kept: the first-run marker, the app
+     * language and the page's arrangement (section order, open sections) — none of them a look.
+     */
     public static void reset(@NonNull Context context) {
-        boolean written = prefs(context).getBoolean(DEFAULTS_WRITTEN, false);
-        prefs(context).edit().clear().putBoolean(DEFAULTS_WRITTEN, written).commit();
+        SharedPreferences p = prefs(context);
+        boolean written = p.getBoolean(DEFAULTS_WRITTEN, false);
+        String language = p.getString(APP_LANGUAGE, null);
+        String order = p.getString(SECTION_ORDER, null);
+        String open = p.getString(SECTIONS_OPEN, null);
+        SharedPreferences.Editor e = p.edit().clear().putBoolean(DEFAULTS_WRITTEN, written);
+        if (language != null) e.putString(APP_LANGUAGE, language);
+        if (order != null) e.putString(SECTION_ORDER, order);
+        if (open != null) e.putString(SECTIONS_OPEN, open);
+        e.commit();
+    }
+
+    /** A disabled item: the same colour at 38 %. */
+    public static int disabled(int color) {
+        return withAlpha(color, Math.round(Color.alpha(color) * 0.38f));
     }
 
     /** {@code #AARRGGBB}, the summary format of every colour row. */

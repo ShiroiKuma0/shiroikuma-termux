@@ -113,11 +113,15 @@ public class ShiroikumaSeekBarPreference extends Preference {
         seekBar.setOnSeekBarChangeListener(null);
         seekBar.setMax(mMax - mMin + (mZeroLabel != null ? 1 : 0));
         seekBar.setProgress(toProgress(mValue));
-        seekBar.setProgressTintList(ColorStateList.valueOf(ShiroikumaTheme.YELLOW));
-        seekBar.setThumbTintList(ColorStateList.valueOf(ShiroikumaTheme.YELLOW));
-        seekBar.setProgressBackgroundTintList(ColorStateList.valueOf(ShiroikumaTheme.YELLOW_DIM));
+        int slider = ShiroikumaTheme.color(getContext(), ShiroikumaTheme.SLIDER);
+        seekBar.setProgressTintList(ColorStateList.valueOf(slider));
+        seekBar.setThumbTintList(ColorStateList.valueOf(slider));
+        seekBar.setProgressBackgroundTintList(ColorStateList.valueOf(ShiroikumaTheme.color(getContext(), ShiroikumaTheme.SLIDER_TRACK)));
         seekBar.setEnabled(isEnabled());
-        if (valueView != null) valueView.setText(label(mValue));
+        if (valueView != null) {
+            valueView.setText(label(mValue));
+            valueView.setTextColor(ShiroikumaTheme.color(getContext(), ShiroikumaTheme.PAGE_VALUE));
+        }
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: an action row of the UI page (ShiroikumaActionPreference) — the title is
+     an outlined pill that hugs its label, with its icon inside (frame, weight, icon and › drawn in
+     code by ShiroikumaRows), the explanation beneath it, aligned with the label text. Only the
+     pill is pressable. No colour here. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:minHeight="0dp">
+
+    <LinearLayout
+        android:id="@+id/sk_text_column"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@android:id/summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>

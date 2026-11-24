@@ -134,6 +134,7 @@ public final class ShiroikumaColorPicker {
             seek.setProgress(argb[ch]);
             seek.setProgressTintList(ColorStateList.valueOf(accent));
             seek.setThumbTintList(ColorStateList.valueOf(accent));
+            seek.setProgressBackgroundTintList(ColorStateList.valueOf(ShiroikumaTheme.withAlpha(accent, 0x66)));
             seek.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override

@@ -25,7 +25,7 @@ import java.util.List;
  *
  * <p>Termux declares {@code MANAGE_EXTERNAL_STORAGE} (its {@code termux-setup-storage} needs it), so
  * unlike the SAF-only sister apps this one never writes through a {@code DocumentFile}: the SAF
- * tree picker is used only to CHOOSE the folder, and its tree URI is resolved here to a path —
+ * tree picker is used only to CHOOSE the directory, and its tree URI is resolved here to a path —
  * {@code primary:Foo/Bar} → {@code /storage/emulated/0/Foo/Bar}, a removable volume
  * {@code XXXX-XXXX:Foo} → {@code /storage/XXXX-XXXX/Foo}. Both the path and the original URI are
  * kept in the device-local prefs file {@value #PREFS}, which is never part of a backup.
@@ -73,7 +73,7 @@ public final class ExportDir {
     }
 
     /**
-     * Remembers a folder picked with {@code ACTION_OPEN_DOCUMENT_TREE}. Returns false when the tree
+     * Remembers a directory picked with {@code ACTION_OPEN_DOCUMENT_TREE}. Returns false when the tree
      * cannot be named as a path (a cloud provider, say) — nothing is stored then, because a path
      * we cannot write is not an export directory.
      */

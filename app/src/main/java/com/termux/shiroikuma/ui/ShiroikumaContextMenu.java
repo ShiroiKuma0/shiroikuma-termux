@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -12,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -22,16 +25,16 @@ import androidx.appcompat.app.AlertDialog;
 import com.termux.R;
 import com.termux.app.TermuxActivity;
 
-import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
-
 /**
  * shiroikuma-termux (Phase 4): the terminal's long-press context menu in the house look.
  *
  * <p>A {@link ContextMenu} backed by a {@link PopupMenu}'s {@link Menu} (the framework's
  * {@code MenuBuilder}, so items keep their ids, checkable / checked / enabled state), handed to
  * upstream's untouched {@code TermuxActivity.onCreateContextMenu(menu, view, null)}, then shown as
- * a bordered black list (the Menus section's colours, border and corners): checkable items get a
- * ✓ when checked, disabled ones are dimmed and inert. A tap runs
+ * a bordered black list (the Menus section's colours, border and corners) in the family's pill-menu
+ * look ({@link ShiroikumaMenus}): every action an outlined pill across the menu with its icon, a ›
+ * when it opens something, the checkable item a plain row with the outlined switch, disabled ones
+ * dimmed and inert, a line between the groups. A tap runs
  * {@code activity.onContextItemSelected(item)} and closes; closing (either way) runs
  * {@code activity.onContextMenuClosed(menu)}, which {@code TerminalView} needs to drop the stored
  * selection. Zero menu logic duplicated — {@link ShiroikumaRootView} funnels all four upstream
@@ -58,9 +61,6 @@ public final class ShiroikumaContextMenu implements ContextMenu {
         if (menu.size() <= 1) return false; // upstream added nothing (no session yet): stay silent, as before
 
         final Context ctx = activity;
-        int ink = color(ctx, MENU_TEXT);
-        int padH = ShiroikumaDialogs.dp(ctx, 20);
-        int padV = ShiroikumaDialogs.dp(ctx, 12);
 
         LinearLayout box = new LinearLayout(ctx);
         box.setOrientation(LinearLayout.VERTICAL);
@@ -71,14 +71,9 @@ public final class ShiroikumaContextMenu implements ContextMenu {
         for (int i = 0; i < menu.size(); i++) {
             final MenuItem item = menu.getItem(i);
             if (!item.isVisible()) continue;
-            TextView row = new TextView(ctx);
-            String prefix = item.isCheckable() ? (item.isChecked() ? "✓  " : "   ") : "";
-            row.setText(prefix + item.getTitle());
-            row.setTextColor(ink);
-            row.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            row.setPadding(padH, padV, padH, padV);
+            if (box.getChildCount() > 0 && ShiroikumaMenus.contextGroupStart(item.getItemId())) box.addView(divider(ctx));
+            View row = row(ctx, item);
             if (item.isEnabled()) {
-                row.setBackgroundResource(ShiroikumaFontPicker.selectableBackground(ctx));
                 row.setOnClickListener(v -> {
                     // selection first, then close — shareSelectedText() needs the stored selection
                     // that onContextMenuClosed() clears.
@@ -86,14 +81,91 @@ public final class ShiroikumaContextMenu implements ContextMenu {
                     else activity.onContextItemSelected(item);
                     dialog.dismiss();
                 });
-            } else {
-                row.setAlpha(0.4f);
             }
             box.addView(row);
         }
         dialog.setOnDismissListener(d -> activity.onContextMenuClosed(menu));
         dialog.show();
         return true;
+    }
+
+    /**
+     * One row. An action is an outlined pill across the menu — icon inside at the left, coloured
+     * by what the row does, a › at the right when it opens something; the destructive one takes
+     * the delete colour throughout, a disabled one 38 %. A checkable item stays plain and lower,
+     * its icon and label lined up with the pills' and the outlined switch ending on their edge.
+     */
+    @NonNull
+    private static View row(@NonNull Context ctx, @NonNull MenuItem item) {
+        ShiroikumaMenus.Spec spec = ShiroikumaMenus.contextSpec(item.getItemId());
+        boolean checkable = item.isCheckable();
+        boolean destructive = !checkable && spec.destructive;
+
+        int ink = destructive ? ShiroikumaMenus.roleColor(ctx, ShiroikumaMenus.ROLE_DELETE) : ShiroikumaMenus.text(ctx);
+        int iconInk = destructive ? ink : ShiroikumaMenus.roleColor(ctx, spec.role);
+        if (!item.isEnabled()) {
+            ink = ShiroikumaMenus.disabled(ink);
+            iconInk = ShiroikumaMenus.disabled(iconInk);
+        }
+
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            ShiroikumaDialogs.dp(ctx, checkable ? ShiroikumaMenus.TOGGLE_HEIGHT_DP : ShiroikumaMenus.ROW_HEIGHT_DP));
+        int h = ShiroikumaDialogs.dp(ctx, ShiroikumaMenus.PILL_MARGIN_H_DP);
+        int v = checkable ? 0 : ShiroikumaDialogs.dp(ctx, ShiroikumaMenus.PILL_MARGIN_V_DP);
+        lp.setMargins(h, v, h, v);
+        row.setLayoutParams(lp);
+        row.setBackground(checkable ? ShiroikumaMenus.plainRipple(ctx, ink) : ShiroikumaMenus.pill(ctx, ink));
+
+        ImageView icon = new ImageView(ctx);
+        icon.setImageDrawable(new ShiroikumaIcons(ctx, spec.icon, iconInk));
+        LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(ShiroikumaDialogs.dp(ctx, 24), ShiroikumaDialogs.dp(ctx, 24));
+        iconLp.setMarginStart(ShiroikumaDialogs.dp(ctx, ShiroikumaMenus.ICON_INSET_DP));
+        row.addView(icon, iconLp);
+
+        TextView label = new TextView(ctx);
+        label.setText(item.getTitle());
+        label.setTextColor(ink);
+        label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        label.setSingleLine(true);
+        label.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams labelLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelLp.setMarginStart(ShiroikumaDialogs.dp(ctx, 12));
+        // A long label stops 8 dp short of what follows it.
+        labelLp.setMarginEnd(ShiroikumaDialogs.dp(ctx, 8));
+        row.addView(label, labelLp);
+
+        if (checkable) {
+            ShiroikumaMenus.SwitchDrawable knob = ShiroikumaMenus.switchDrawable(ctx);
+            knob.setChecked(item.isChecked());
+            ImageView toggle = new ImageView(ctx);
+            toggle.setImageDrawable(knob);
+            if (!item.isEnabled()) toggle.setAlpha(0.38f);
+            row.addView(toggle, new LinearLayout.LayoutParams(
+                ShiroikumaDialogs.dp(ctx, ShiroikumaMenus.SWITCH_WIDTH_DP), ShiroikumaDialogs.dp(ctx, ShiroikumaMenus.SWITCH_HEIGHT_DP)));
+        } else if (spec.opens) {
+            ImageView chevron = new ImageView(ctx);
+            chevron.setImageDrawable(new ShiroikumaIcons(ctx, ShiroikumaIcons.ICON_CHEVRON, ink));
+            LinearLayout.LayoutParams chevronLp = new LinearLayout.LayoutParams(ShiroikumaDialogs.dp(ctx, 24), ShiroikumaDialogs.dp(ctx, 24));
+            chevronLp.setMarginEnd(ShiroikumaDialogs.dp(ctx, 8));
+            row.addView(chevron, chevronLp);
+        }
+        return row;
+    }
+
+    /** The line between two groups: 1 dp, the derived darker text colour, as wide as the pills. */
+    @NonNull
+    private static View divider(@NonNull Context ctx) {
+        View line = new View(ctx);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Math.max(1, ShiroikumaDialogs.dp(ctx, 1)));
+        int h = ShiroikumaDialogs.dp(ctx, ShiroikumaMenus.PILL_MARGIN_H_DP);
+        int v = ShiroikumaDialogs.dp(ctx, 4);
+        lp.setMargins(h, v, h, v);
+        line.setLayoutParams(lp);
+        line.setBackgroundColor(ShiroikumaMenus.divider(ctx));
+        return line;
     }
 
     // ---- ContextMenu header: no header in the house look -----------------------------------------

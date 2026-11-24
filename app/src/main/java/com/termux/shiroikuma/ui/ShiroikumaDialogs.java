@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -33,8 +34,9 @@ import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
  *
  * <p>A dialog we build is a transparent-window {@link AlertDialog} whose content is ONE bordered
  * rounded box ({@link #panelBackground}: the Dialogs section's background, border colour/width and
- * corner radius), yellow text, and pill buttons ({@link #pill}: corner 50 dp, dialog fill, 1.5 dp
- * stroke in the button colour, translucent ripple, no all-caps, {@code minWidth 0}).
+ * corner radius), yellow text, and pill buttons — never filled: {@link #mainPill} for the one
+ * action the dialog is for (3 dp frame, bold), {@link #pill} for every other (1.25 dp, normal);
+ * corner 50 dp, dialog ground, translucent ripple, no all-caps, {@code minWidth 0}.
  * {@link #styleAlertDialog} retrofits the same look onto an AppCompat AlertDialog built with
  * {@code setTitle/setMessage/set*Button} — after {@code show()}, because the buttons exist only then.
  */
@@ -118,14 +120,26 @@ public final class ShiroikumaDialogs {
     /** An ArcaneChat-style round pill: dialog fill, thin stroke and text in the button colour, ripple. */
     @NonNull
     public static Button pill(@NonNull Context context, @Nullable CharSequence label, @Nullable View.OnClickListener onClick) {
+        return pill(context, label, false, onClick);
+    }
+
+    /** The main action of a dialog: the same pill, told apart by weight only — 3 dp frame, bold. */
+    @NonNull
+    public static Button mainPill(@NonNull Context context, @Nullable CharSequence label, @Nullable View.OnClickListener onClick) {
+        return pill(context, label, true, onClick);
+    }
+
+    @NonNull
+    private static Button pill(@NonNull Context context, @Nullable CharSequence label, boolean main, @Nullable View.OnClickListener onClick) {
         Button b = new Button(context);
         b.setText(label);
         b.setAllCaps(false);
         int accent = color(context, DIALOG_BUTTON);
         b.setTextColor(accent);
+        b.setTypeface(Typeface.DEFAULT, main ? Typeface.BOLD : Typeface.NORMAL);
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(color(context, DIALOG_BG));
-        bg.setStroke(Math.max(1, dp(context, 1.5f)), accent);
+        bg.setStroke(Math.max(1, dp(context, main ? 3f : 1.25f)), accent);
         bg.setCornerRadius(dp(context, 50));
         b.setBackground(new RippleDrawable(ColorStateList.valueOf(withAlpha(accent, 0x33)), bg, null));
         b.setStateListAnimator(null);
@@ -137,6 +151,18 @@ public final class ShiroikumaDialogs {
         b.setOnClickListener(onClick);
         b.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return b;
+    }
+
+    /** A selection mark in the dialog colours (「Never show again」). */
+    @NonNull
+    public static CheckBox checkBox(@NonNull Context context, @Nullable CharSequence label) {
+        CheckBox cb = new CheckBox(context);
+        cb.setText(label);
+        cb.setTextColor(color(context, DIALOG_TEXT));
+        cb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        cb.setButtonTintList(ColorStateList.valueOf(color(context, DIALOG_BUTTON)));
+        cb.setPadding(dp(context, 8), dp(context, 7), 0, dp(context, 7));
+        return cb;
     }
 
     /** A right-aligned button row (16 dp above) — add pills to it in order. */
@@ -188,7 +214,7 @@ public final class ShiroikumaDialogs {
         LinearLayout box = infoBox(activity, title, body);
         final AlertDialog dialog = panel(activity, box, cancelable);
         LinearLayout buttons = buttonRow(activity);
-        addPill(buttons, pill(activity, activity.getString(android.R.string.ok), v -> {
+        addPill(buttons, mainPill(activity, activity.getString(android.R.string.ok), v -> {
             dialog.dismiss();
             if (onOk != null) onOk.run();
         }));
@@ -205,7 +231,7 @@ public final class ShiroikumaDialogs {
         final AlertDialog dialog = panel(activity, box, true);
         LinearLayout buttons = buttonRow(activity);
         addPill(buttons, pill(activity, activity.getString(android.R.string.cancel), v -> dialog.dismiss()));
-        addPill(buttons, pill(activity, action, v -> {
+        addPill(buttons, mainPill(activity, action, v -> {
             dialog.dismiss();
             onConfirm.run();
         }));
@@ -223,7 +249,10 @@ public final class ShiroikumaDialogs {
                                           @Nullable CharSequence initial, @NonNull Callback<String> onOk) {
         LinearLayout box = infoBox(activity, title, null);
         int ink = color(activity, DIALOG_TEXT);
-        final EditText field = new EditText(activity);
+        // Cursor and selection handles are theme-drawn: give the field the dialog overlay, since
+        // the UI page's own theme carries no colour.
+        final EditText field = new EditText(new android.view.ContextThemeWrapper(activity, com.termux.R.style.ThemeOverlay_Shiroikuma_Dialog));
+        field.setHighlightColor(withAlpha(color(activity, DIALOG_BUTTON), 0x55));
         field.setSingleLine(true);
         field.setTextColor(ink);
         field.setHintTextColor(withAlpha(ink, 0x99));
@@ -238,7 +267,7 @@ public final class ShiroikumaDialogs {
         final AlertDialog dialog = panel(activity, box, true);
         LinearLayout buttons = buttonRow(activity);
         addPill(buttons, pill(activity, activity.getString(android.R.string.cancel), v -> dialog.dismiss()));
-        addPill(buttons, pill(activity, activity.getString(android.R.string.ok), v -> {
+        addPill(buttons, mainPill(activity, activity.getString(android.R.string.ok), v -> {
             dialog.dismiss();
             onOk.call(field.getText().toString().trim());
         }));
@@ -276,9 +305,11 @@ public final class ShiroikumaDialogs {
             GradientDrawable pillBg = new GradientDrawable();
             pillBg.setColor(color(ctx, DIALOG_BG));
             pillBg.setCornerRadius(dp(ctx, 50));
-            pillBg.setStroke(Math.max(1, dp(ctx, 1.5f)), accent);
+            boolean main = which == AlertDialog.BUTTON_POSITIVE;
+            pillBg.setStroke(Math.max(1, dp(ctx, main ? 3f : 1.25f)), accent);
             b.setBackground(new RippleDrawable(ColorStateList.valueOf(withAlpha(accent, 0x33)), pillBg, null));
             b.setTextColor(accent);
+            b.setTypeface(Typeface.DEFAULT, main ? Typeface.BOLD : Typeface.NORMAL);
             b.setAllCaps(false);
             b.setMinWidth(0);
             b.setMinimumWidth(0);

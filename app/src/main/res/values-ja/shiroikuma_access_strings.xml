@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: values/shiroikuma_access_strings.xml の日本語。キーは必ず同じ組にする。 -->
+<resources>
+    <string name="shiroikuma_ui_section_external">外部アプリ</string>
+    <string name="shiroikuma_ext_hint">他のアプリ（まず白い熊 自由作業盤）は、Termux の RUN_COMMAND という入口からコマンドを実行します。この入口は、下のスイッチが入っていて、呼び出すアプリが「Run commands in 白い熊 Termux environment」の権限を持っているときだけ応じます。</string>
+    <string name="shiroikuma_ext_allow">外部アプリを許可</string>
+    <string name="shiroikuma_ext_allow_desc">%1$s に allow-external-apps として書き込みます。</string>
+    <string name="shiroikuma_ext_allow_confirm_title">外部アプリを許可しますか？</string>
+    <string name="shiroikuma_ext_allow_confirm_body">「Run commands in 白い熊 Termux environment」の権限を持つすべてのアプリが、Termux として任意のコマンドを実行でき、Termux のすべてのファイルに手が届くようになります。信頼できるアプリのためにだけ入れてください。</string>
+    <string name="shiroikuma_ext_allow_action">許可</string>
+    <string name="shiroikuma_ext_write_failed">%1$s に書き込めませんでした：%2$s</string>
+    <string name="shiroikuma_ext_warn">切のときは起動時に知らせる</string>
+    <string name="shiroikuma_ext_warn_desc">Termux の起動時に外部アプリが許可されていなければ、知らせを表示します。</string>
+    <string name="shiroikuma_ext_callers">権限を持つアプリ</string>
+    <string name="shiroikuma_ext_callers_none">なし</string>
+    <string name="shiroikuma_ext_battery">電池の最適化</string>
+    <string name="shiroikuma_ext_battery_ok">制限なし</string>
+    <string name="shiroikuma_ext_battery_bad">制限あり — Termux が背後にある間に送られたコマンドは、始まらないことがあります。押すと制限を外します。</string>
+    <string name="shiroikuma_ext_overlay">他のアプリの上に重ねて表示</string>
+    <string name="shiroikuma_ext_overlay_ok">許可済み</string>
+    <string name="shiroikuma_ext_overlay_bad">未許可 — 背後から端末を開くために必要です。押すと許可の画面を開きます。</string>
+    <string name="shiroikuma_ext_dialog_title">外部アプリが許可されていません</string>
+    <string name="shiroikuma_ext_dialog_body">「allow-external-apps」が切になっているため、他のアプリ（白い熊 自由作業盤など）は Termux でコマンドを実行できず、その要求は失敗します。白い熊 Termux UI 設定の「外部アプリ」で入れられます。</string>
+    <string name="shiroikuma_ext_dialog_open">設定を開く</string>
+    <string name="shiroikuma_ext_dialog_never">今後は表示しない</string>
+</resources>

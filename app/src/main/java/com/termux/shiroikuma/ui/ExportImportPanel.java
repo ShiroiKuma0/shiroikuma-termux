@@ -165,7 +165,7 @@ public class ExportImportPanel {
         setRunning(mJobId != null, null);
     }
 
-    /** The folder box: bordered, clearly tappable — small label over the value, red when unset. */
+    /** The directory box: bordered, clearly tappable — small label over the value, red when unset. */
     private View dirBox() {
         Context ctx = mActivity;
         LinearLayout box = new LinearLayout(ctx);
@@ -273,7 +273,7 @@ public class ExportImportPanel {
         mImportPill = pill(ctx, mActivity.getString(R.string.shiroikuma_eim_import), v -> onImportClicked());
         ((LinearLayout.LayoutParams) mImportPill.getLayoutParams()).rightMargin = dp(ctx, 8);
         row.addView(mImportPill);
-        mExportPill = pill(ctx, mActivity.getString(R.string.shiroikuma_eim_export), v -> onExportClicked());
+        mExportPill = ShiroikumaDialogs.mainPill(ctx, mActivity.getString(R.string.shiroikuma_eim_export), v -> onExportClicked());
         row.addView(mExportPill);
         return row;
     }
@@ -334,7 +334,7 @@ public class ExportImportPanel {
         }
         File dir = ExportDir.dir(mActivity);
         if (dir == null) {
-            mHost.pickExportDir(null); // no folder yet: ask for one instead of failing
+            mHost.pickExportDir(null); // no directory yet: ask for one instead of failing
             return;
         }
         if (!ExportDir.hasStorageAccess(mActivity)) {
@@ -351,7 +351,7 @@ public class ExportImportPanel {
                 dialog.dismiss();
                 startExport(dir);
             }));
-            addPill(buttons, pill(mActivity, mActivity.getString(R.string.shiroikuma_eim_battery_settings), v -> {
+            addPill(buttons, ShiroikumaDialogs.mainPill(mActivity, mActivity.getString(R.string.shiroikuma_eim_battery_settings), v -> {
                 dialog.dismiss();
                 PermissionUtils.requestDisableBatteryOptimizations(mActivity);
             }));
@@ -515,7 +515,7 @@ public class ExportImportPanel {
             dismiss();
             mHost.onChainFinished();
         }));
-        addPill(buttons, pill(mActivity, mActivity.getString(R.string.shiroikuma_eim_restart_now), v -> restartApp()));
+        addPill(buttons, ShiroikumaDialogs.mainPill(mActivity, mActivity.getString(R.string.shiroikuma_eim_restart_now), v -> restartApp()));
         box.addView(buttons);
         dialog.show();
     }
@@ -528,7 +528,7 @@ public class ExportImportPanel {
 
     // ---- the export directory ------------------------------------------------------------------
 
-    /** Called by the host after the SAF folder picker returns. */
+    /** Called by the host after the SAF directory picker returns. */
     public void onDirPicked(@Nullable Uri uri) {
         if (uri == null) return;
         if (!ExportDir.set(mActivity, uri)) {

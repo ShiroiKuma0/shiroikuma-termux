@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (pill menus): the rows of the Menus section that set the colour of a menu
+     row's icon by what the row does. Japanese: values-ja/shiroikuma_menu_strings.xml, same keys. -->
+<resources>
+    <string name="shiroikuma_ui_menu_icon_connect">Icon: connect / reset</string>
+    <string name="shiroikuma_ui_menu_icon_share">Icon: share / copy / export</string>
+    <string name="shiroikuma_ui_menu_icon_contact">Icon: contact</string>
+    <string name="shiroikuma_ui_menu_icon_block">Icon: lock / secret</string>
+    <string name="shiroikuma_ui_menu_delete">Delete (frame, icon and text)</string>
+</resources>

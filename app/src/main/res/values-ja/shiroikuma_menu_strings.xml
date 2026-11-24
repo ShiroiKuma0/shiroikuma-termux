@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux (pill menus): values/shiroikuma_menu_strings.xml の日本語訳。キーは同じ。 -->
+<resources>
+    <string name="shiroikuma_ui_menu_icon_connect">アイコンの色：接続・初期化</string>
+    <string name="shiroikuma_ui_menu_icon_share">アイコンの色：共有・複写・書き出し</string>
+    <string name="shiroikuma_ui_menu_icon_contact">アイコンの色：連絡先</string>
+    <string name="shiroikuma_ui_menu_icon_block">アイコンの色：施錠・秘密</string>
+    <string name="shiroikuma_ui_menu_delete">削除（枠・アイコン・文字）</string>
+</resources>

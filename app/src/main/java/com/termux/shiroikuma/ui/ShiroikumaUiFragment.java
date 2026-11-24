@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.Settings;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,14 +24,22 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
+import androidx.recyclerview.widget.LinearSmoothScroller;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.termux.R;
 import com.termux.shared.android.PermissionUtils;
 import com.termux.shared.logger.Logger;
 import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
+import com.termux.app.activities.SettingsActivity;
+import com.termux.shiroikuma.AppLanguage;
+import com.termux.shiroikuma.ExternalAppsAccess;
 import com.termux.shiroikuma.automation.AutomationAuth;
 import com.termux.shiroikuma.backup.ExportDir;
 import com.termux.shiroikuma.backup.TermuxBackup;
@@ -41,8 +50,11 @@ import com.termux.window.TermuxFloatService;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import static com.termux.shiroikuma.ui.ShiroikumaIcons.*;
 import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
 
 /**
@@ -50,7 +62,7 @@ import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
  * {@code preferences_shiroikuma_ui.xml} (a port of arcanechat's {@code ShiroikumaUiPreferenceFragment}).
  *
  * <ul>
- * <li>Colour rows: swatch + {@code #AARRGGBB} summary, tap → {@link ShiroikumaColorPicker} applying
+ * <li>Colour rows: swatch + {@code #AARRGGBB} at the right, tap → {@link ShiroikumaColorPicker} applying
  *     live on every slider tick, long-press → default.</li>
  * <li>Size rows: {@link ShiroikumaSeekBarPreference}, live, long-press → default.</li>
  * <li>Terminal: the three main colours are written to {@code ~/.termux/colors.properties} (picker
@@ -67,13 +79,33 @@ import static com.termux.shiroikuma.ui.ShiroikumaTheme.*;
  * three automation rows of the contract §2 (master switch ON, 「Use authorization token?」 OFF,
  * the token row only while it is asked for).
  *
+ * <p>External apps — the second section: {@code allow-external-apps} as a switch (written into the
+ * properties file by {@link ExternalAppsAccess}, switching ON asks first), 「Warn at start while
+ * off」 (the start-up dialog's 「Never show again」, inverted), and three status rows re-read on
+ * every resume: the apps holding the RUN_COMMAND permission, battery optimisation and the overlay
+ * grant (red while missing; a tap opens the grant).
+ *
+ * <p>Action rows (App settings, Language, Export / Import…, the two grants of External apps,
+ * Refresh widgets, the dynamic shortcuts, Open floating terminal, the two resets) are
+ * {@link ShiroikumaActionPreference}s — outlined pills.
+ *
+ * <p>The page is a folding accordion under a chip index (the family's UI-page rule): every
+ * top-level section is a {@link ShiroikumaSectionCategory}, folded by default, whose heading folds
+ * and unfolds its rows; {@link #SECTIONS} is the registry — id, icon, section-icon colour — that
+ * heading and chip both read. The index ({@link ShiroikumaIndexPreference}) jumps on a tap and
+ * reorders on a long-press drag; order and fold state live in {@link ShiroikumaPageState}. 「App
+ * language」 is the first section of the default order ({@link AppLanguage}); 「This page」 and
+ * 「Buttons &amp; switches」 hold the colour roles of the page itself, which repaint it live
+ * ({@link #repaintPage}); Maintenance holds 「Reset section order」 and 「Reset all to defaults」.
+ * Every row is drawn by {@link ShiroikumaRows} through {@link #onCreateAdapter}.
+ *
  * <p>Phase 4c — the absorbed plugins: the Widget section (list colours / text size pushed to the
  * placed widgets' RemoteViews through {@link TermuxWidgetProvider#refreshAppWidgets}, debounced;
  * Refresh widgets; Create / Remove dynamic shortcuts) and the Floating terminal section (Open →
  * {@link TermuxFloatService}; frame colours, border, corner and the notification text restyle a
  * running window live through {@link TermuxFloatService#reloadStyle()}).
  */
-public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
+public class ShiroikumaUiFragment extends PreferenceFragmentCompat implements ShiroikumaIndexPreference.Host {
 
     private static final String LOG_TAG = "ShiroikumaUiFragment";
 
@@ -83,6 +115,43 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         TOOLBAR_BG, TOOLBAR_TEXT, TOOLBAR_ICON, STATUSBAR_BG, NAVBAR_BG,
         DIALOG_BG, DIALOG_TEXT, DIALOG_TITLE, DIALOG_BUTTON, DIALOG_BORDER_COLOR,
         MENU_BG, MENU_TEXT, MENU_BORDER_COLOR,
+    };
+    /** The colour roles of the page itself: a change repaints the page ({@link #repaintPage}). */
+    private static final String[] PAGE_COLOR_KEYS = {
+        MENU_ICON_CONNECT, MENU_ICON_SHARE, MENU_ICON_CONTACT, MENU_ICON_BLOCK, MENU_DELETE,
+        PILL_FRAME, PILL_TEXT, SWITCH_ON, SWITCH_OFF,
+        PAGE_BG, PAGE_HEADING, PAGE_LABEL, PAGE_NOTE, PAGE_VALUE, PAGE_DIVIDER, PAGE_WARNING, PAGE_ICON,
+        CHIP_FRAME, CHIP_TEXT, SWATCH_FRAME, SLIDER, SLIDER_TRACK,
+        SECTION_BASE, SECTION_CONTROLS, SECTION_WORDS, SECTION_FRAME, SECTION_REACH, SECTION_WARNING, SECTION_FLASH,
+    };
+    /** Rows whose summary is a value (a path, a name, a list), not an explanation. */
+    private static final String[] VALUE_ROW_KEYS = {
+        "export_dir", "last_export", "automation_token", "external_apps_callers",
+        "terminal_scheme", "terminal_font", "float_notification_text",
+    };
+
+    /**
+     * The section registry — id (the category's key without {@code section_}), icon, and which of
+     * the seven section-icon colours the section takes by what it is: the base yellow (the app
+     * and its settings), green (controls), light blue (words), heavy blue (the frame), orange
+     * (the app reaches out), red (warning). Heading and chip both read this row. The DEFAULT
+     * ORDER is the order of the XML, where no two neighbours share a colour.
+     */
+    private static final Object[][] SECTIONS = {
+        {"language", ICON_GLOBE, SECTION_WORDS},
+        {"eximport", ICON_EXPORT, SECTION_REACH},
+        {"terminal", ICON_TERMINAL, SECTION_BASE},
+        {"external_apps", ICON_PLUG, SECTION_REACH},
+        {"extrakeys", ICON_KEYBOARD, SECTION_CONTROLS},
+        {"drawer", ICON_MENU, SECTION_FRAME},
+        {"dialogs", ICON_DIALOG, SECTION_REACH},
+        {"toolbar", ICON_BAR, SECTION_FRAME},
+        {"widget", ICON_GRID, SECTION_REACH},
+        {"float", ICON_WINDOW, SECTION_BASE},
+        // "buttons", never "controls": section_controls is the key of a colour role
+        {"buttons", ICON_TOGGLE, SECTION_CONTROLS},
+        {"page", ICON_PAGE, SECTION_BASE},
+        {"maintenance", ICON_WARNING, SECTION_WARNING},
     };
     private static final String[] SIZE_KEYS = {
         EXTRAKEYS_TEXT_SIZE_SP, EXTRAKEYS_BORDER_DP, EXTRAKEYS_CORNER_DP, SESSION_TEXT_SIZE_SP,
@@ -109,17 +178,175 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
             if (uri != null && mPanel != null && mPanel.isShowing()) mPanel.onImportFilePicked(uri);
         });
 
+    private static final String ARG_SCROLL_TO = "scroll_to";
+
+    /** {@code scrollTo} = key of the row or section to bring into view, or null. */
+    @NonNull
+    public static ShiroikumaUiFragment newInstance(@Nullable String scrollTo) {
+        ShiroikumaUiFragment fragment = new ShiroikumaUiFragment();
+        if (scrollTo != null) {
+            Bundle args = new Bundle();
+            args.putString(ARG_SCROLL_TO, scrollTo);
+            fragment.setArguments(args);
+        }
+        return fragment;
+    }
+
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences_shiroikuma_ui, rootKey);
+        setUpSections();
+        for (String key : VALUE_ROW_KEYS) {
+            ShiroikumaPreference row = findPreference(key);
+            if (row != null) row.setSummaryValue(true);
+        }
 
+        wireTop();
         wireExportImport();
+        wireExternalApps();
         wireTerminal();
         for (String key : COLOR_KEYS) wireColor(key, null);
+        for (String key : PAGE_COLOR_KEYS) wireColor(key, this::repaintPage);
         for (String key : SIZE_KEYS) wireSize(key, null);
         wireWidget();
         wireFloat();
         wireReset();
+    }
+
+    /** Every row of the page is drawn in one place: {@link ShiroikumaRows}. */
+    @NonNull
+    @Override
+    protected RecyclerView.Adapter<?> onCreateAdapter(@NonNull PreferenceScreen preferenceScreen) {
+        return new ShiroikumaRows.Adapter(preferenceScreen);
+    }
+
+    // ---- the accordion: sections, their order, the chip index ------------------------------------
+
+    @Nullable private ShiroikumaIndexPreference mIndex;
+
+    /** Gives every section its look and its stored fold state, adds the index, applies the order. */
+    private void setUpSections() {
+        Context ctx = requireContext();
+        PreferenceScreen screen = getPreferenceScreen();
+        for (Object[] row : SECTIONS) {
+            ShiroikumaSectionCategory section = findPreference(ShiroikumaSectionCategory.KEY_PREFIX + row[0]);
+            if (section == null) continue;
+            section.look((Integer) row[1], (String) row[2]);
+            section.setOpen(ShiroikumaPageState.isOpen(ctx, (String) row[0]), false);
+        }
+        mIndex = new ShiroikumaIndexPreference(ctx, this);
+        screen.addPreference(mIndex);
+        applyOrder();
+    }
+
+    @NonNull
+    private static List<String> defaultOrder() {
+        List<String> ids = new ArrayList<>();
+        for (Object[] row : SECTIONS) ids.add((String) row[0]);
+        return ids;
+    }
+
+    /** The App settings pill, the index, then the sections in their stored order. */
+    private void applyOrder() {
+        Context ctx = requireContext();
+        Preference settings = findPreference("app_settings");
+        if (settings != null) settings.setOrder(0);
+        if (mIndex != null) mIndex.setOrder(1);
+        int order = 10;
+        for (String id : ShiroikumaPageState.order(ctx, defaultOrder())) {
+            Preference section = findPreference(ShiroikumaSectionCategory.KEY_PREFIX + id);
+            if (section != null) section.setOrder(order++);
+        }
+    }
+
+    @NonNull
+    @Override
+    public List<ShiroikumaSectionCategory> sections() {
+        List<ShiroikumaSectionCategory> out = new ArrayList<>();
+        Context ctx = getContext();
+        if (ctx == null) return out;
+        for (String id : ShiroikumaPageState.order(ctx, defaultOrder())) {
+            ShiroikumaSectionCategory section = findPreference(ShiroikumaSectionCategory.KEY_PREFIX + id);
+            if (section != null) out.add(section);
+        }
+        return out;
+    }
+
+    /** A chip was tapped: unfold the section and scroll its heading to the top. */
+    @Override
+    public void jump(@NonNull final ShiroikumaSectionCategory section) {
+        if (!section.isOpen()) section.setOpen(true, true);
+        final RecyclerView list = getListView();
+        if (list == null) return;
+        // Posted: the adapter takes the unfolded rows in on its own posted sync first.
+        list.post(() -> {
+            RecyclerView.Adapter<?> adapter = list.getAdapter();
+            RecyclerView.LayoutManager layout = list.getLayoutManager();
+            if (!(adapter instanceof PreferenceGroup.PreferencePositionCallback) || layout == null) return;
+            int position = ((PreferenceGroup.PreferencePositionCallback) adapter).getPreferenceAdapterPosition(section);
+            if (position == RecyclerView.NO_POSITION) return;
+            LinearSmoothScroller scroller = new LinearSmoothScroller(list.getContext()) {
+                @Override
+                protected int getVerticalSnapPreference() {
+                    return SNAP_TO_START;
+                }
+            };
+            scroller.setTargetPosition(position);
+            layout.startSmoothScroll(scroller);
+        });
+    }
+
+    /** The chips were dragged into a new order: the sections follow, fold state untouched. */
+    @Override
+    public void reorder(@NonNull List<String> order) {
+        Context ctx = getContext();
+        if (ctx == null) return;
+        ShiroikumaPageState.setOrder(ctx, order);
+        applyOrder();
+    }
+
+    /** A colour role of the page itself changed: ground, bars and every bound row again. */
+    private void repaintPage() {
+        Activity activity = getActivity();
+        if (activity instanceof ShiroikumaUiActivity) ((ShiroikumaUiActivity) activity).applyPageColors();
+        View view = getView();
+        Context ctx = getContext();
+        if (view != null && ctx != null) view.setBackgroundColor(color(ctx, PAGE_BG));
+        RecyclerView list = getListView();
+        if (list != null && list.getAdapter() != null) list.getAdapter().notifyDataSetChanged();
+        // The menu icon and switch roles also draw the terminal's menus.
+        if (ctx != null) ShiroikumaStyle.changed(ctx);
+    }
+
+    // ---- the top of the page and the small sections: App settings, App language, Maintenance -----
+
+    private void wireTop() {
+        final Context ctx = requireContext();
+
+        ShiroikumaPreference settings = findPreference("app_settings");
+        if (settings != null) settings.setOnPreferenceClickListener(p -> {
+            startActivity(new Intent(ctx, SettingsActivity.class));
+            return true;
+        });
+
+        ShiroikumaPreference language = findPreference("app_language");
+        if (language != null) {
+            language.setTitle(getString(R.string.shiroikuma_lang_row, AppLanguage.currentName(ctx)));
+            language.setOnPreferenceClickListener(p -> {
+                Activity activity = getActivity();
+                // Choosing a language recreates the page; the row is then built again.
+                if (activity != null) AppLanguage.showPicker(activity);
+                return true;
+            });
+        }
+
+        ShiroikumaPreference resetOrder = findPreference("reset_order");
+        if (resetOrder != null) resetOrder.setOnPreferenceClickListener(p -> {
+            ShiroikumaPageState.resetOrder(ctx);
+            applyOrder();
+            Toast.makeText(ctx, R.string.shiroikuma_page_reset_order_done, Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     @Override
@@ -127,6 +354,105 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         super.onResume();
         refreshExportDirRow();
         refreshLastExportRow();
+        refreshExternalAppsRows();
+    }
+
+    // ---- External apps (allow-external-apps and what the RUN_COMMAND door needs) ----------------
+
+    private void wireExternalApps() {
+        final Context ctx = requireContext();
+
+        final SwitchPreferenceCompat allow = findPreference("allow_external_apps");
+        if (allow != null) {
+            allow.setOnPreferenceChangeListener((p, value) -> {
+                if (!Boolean.TRUE.equals(value)) return writeAllowExternalApps(false);
+                // Opening the door is confirmed: the switch moves only after 「Allow」.
+                Activity activity = getActivity();
+                if (activity == null) return false;
+                ShiroikumaDialogs.confirmDialog(activity, getString(R.string.shiroikuma_ext_allow_confirm_title),
+                    getString(R.string.shiroikuma_ext_allow_confirm_body), getString(R.string.shiroikuma_ext_allow_action), () -> {
+                        if (writeAllowExternalApps(true)) allow.setChecked(true);
+                    });
+                return false;
+            });
+        }
+
+        final SwitchPreferenceCompat warn = findPreference("external_apps_warn");
+        if (warn != null) {
+            warn.setChecked(ExternalAppsAccess.warnsAtStart(ctx));
+            warn.setOnPreferenceChangeListener((p, value) -> {
+                ExternalAppsAccess.setWarnsAtStart(ctx, Boolean.TRUE.equals(value));
+                return true;
+            });
+        }
+
+        // Two pills: the grant while it is missing, the system's own page of it once given.
+        ShiroikumaPreference battery = findPreference("external_apps_battery");
+        if (battery != null) battery.setOnPreferenceClickListener(p -> {
+            Activity activity = getActivity();
+            if (activity == null) return true;
+            if (!PermissionUtils.checkIfBatteryOptimizationsDisabled(ctx)) PermissionUtils.requestDisableBatteryOptimizations(activity);
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) openSystemPage(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+            return true;
+        });
+
+        ShiroikumaPreference overlay = findPreference("external_apps_overlay");
+        if (overlay != null) overlay.setOnPreferenceClickListener(p -> {
+            Activity activity = getActivity();
+            if (activity == null) return true;
+            if (!PermissionUtils.checkDisplayOverOtherAppsPermission(ctx)) PermissionUtils.requestDisplayOverOtherAppsPermission(activity);
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                openSystemPage(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + ctx.getPackageName())));
+            return true;
+        });
+    }
+
+    private void openSystemPage(@NonNull Intent intent) {
+        try {
+            startActivity(intent);
+        } catch (RuntimeException e) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Cannot open " + intent.getAction(), e);
+        }
+    }
+
+    private boolean writeAllowExternalApps(boolean allowed) {
+        try {
+            ExternalAppsAccess.setAllowed(allowed);
+            return true;
+        } catch (IOException e) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Cannot write allow-external-apps", e);
+            Context ctx = getContext();
+            if (ctx != null) Toast.makeText(ctx, getString(R.string.shiroikuma_ext_write_failed,
+                ExternalAppsAccess.propertiesFileLabel(), String.valueOf(e.getMessage())), Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
+    /** On every resume: the file may have been edited by hand, a grant given on a system page. */
+    private void refreshExternalAppsRows() {
+        Context ctx = getContext();
+        if (ctx == null) return;
+
+        SwitchPreferenceCompat allow = findPreference("allow_external_apps");
+        if (allow != null) {
+            allow.setChecked(ExternalAppsAccess.isAllowed());
+            allow.setSummary(getString(R.string.shiroikuma_ext_allow_desc, ExternalAppsAccess.propertiesFileLabel()));
+        }
+
+        ShiroikumaPreference callers = findPreference("external_apps_callers");
+        if (callers != null) {
+            java.util.List<String> labels = ExternalAppsAccess.permissionHolders(ctx);
+            callers.setSummary(labels.isEmpty() ? red(getString(R.string.shiroikuma_ext_callers_none))
+                : android.text.TextUtils.join("\n", labels));
+        }
+
+        ShiroikumaPreference battery = findPreference("external_apps_battery");
+        if (battery != null) battery.setSummary(PermissionUtils.checkIfBatteryOptimizationsDisabled(ctx)
+            ? getString(R.string.shiroikuma_ext_battery_ok) : red(getString(R.string.shiroikuma_ext_battery_bad)));
+
+        ShiroikumaPreference overlay = findPreference("external_apps_overlay");
+        if (overlay != null) overlay.setSummary(PermissionUtils.checkDisplayOverOtherAppsPermission(ctx)
+            ? getString(R.string.shiroikuma_ext_overlay_ok) : red(getString(R.string.shiroikuma_ext_overlay_bad)));
     }
 
     // ---- Export / Import (Phase 4b) --------------------------------------------------------------
@@ -176,11 +502,11 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         if (requireToken != null) {
             boolean required = AutomationAuth.isTokenRequired(ctx);
             requireToken.setChecked(required);
-            if (token != null) token.setVisible(required);
+            if (token != null) ShiroikumaSectionCategory.setWanted(token, required);
             requireToken.setOnPreferenceChangeListener((p, value) -> {
                 boolean now = Boolean.TRUE.equals(value);
                 AutomationAuth.setTokenRequired(ctx, now);
-                if (token != null) token.setVisible(now);
+                if (token != null) ShiroikumaSectionCategory.setWanted(token, now);
                 return true;
             });
         }
@@ -211,7 +537,7 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         token.setSummary(AutomationAuth.abbreviate(AutomationAuth.token(ctx)) + "\n" + getString(R.string.shiroikuma_auto_token_summary));
     }
 
-    /** The path in yellow, or a red "not set"; a red second line while All-files access is missing. */
+    /** The path (in the value colour), or a red "not set"; a red second line while All-files access is missing. */
     private void refreshExportDirRow() {
         ShiroikumaPreference dir = findPreference("export_dir");
         Context ctx = getContext();
@@ -219,9 +545,7 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         String path = ExportDir.path(ctx);
         SpannableStringBuilder sb = new SpannableStringBuilder();
         if (path != null) {
-            SpannableString s = new SpannableString(path);
-            s.setSpan(new ForegroundColorSpan(YELLOW), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            sb.append(s);
+            sb.append(path);
         } else {
             sb.append(red(getString(R.string.shiroikuma_eim_dir_unset)));
         }
@@ -238,20 +562,17 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         if (last == null || ctx == null) return;
         final File dir = ExportDir.dir(ctx);
         final Context app = ctx.getApplicationContext();
+        // The strings are read here, from the page's own (localised) context, not on the thread.
+        final String noDir = getString(R.string.shiroikuma_eim_warn_nodir);
+        final String none = getString(R.string.shiroikuma_eim_warn_none);
         new Thread(() -> {
             final CharSequence value;
             if (dir == null) {
-                value = red(app.getString(R.string.shiroikuma_eim_warn_nodir));
+                value = red(noDir);
             } else {
                 File newest = ExportDir.newestExport(dir);
-                if (newest == null) {
-                    value = red(app.getString(R.string.shiroikuma_eim_warn_none));
-                } else {
-                    SpannableString s = new SpannableString(ExportImportPanel.formatTs(app, newest.lastModified())
-                        + " · " + TermuxBackup.humanSize(newest.length()));
-                    s.setSpan(new ForegroundColorSpan(YELLOW), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    value = s;
-                }
+                value = newest == null ? red(none)
+                    : ExportImportPanel.formatTs(app, newest.lastModified()) + " · " + TermuxBackup.humanSize(newest.length());
             }
             View view = getView();
             if (view != null) view.post(() -> {
@@ -260,10 +581,12 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         }, "shiroikuma-last-export").start();
     }
 
+    /** A warning in the 「Warnings」 colour of the page. */
     @NonNull
-    private static CharSequence red(@NonNull String text) {
+    private CharSequence red(@NonNull String text) {
+        Context ctx = getContext();
         SpannableString s = new SpannableString(text);
-        s.setSpan(new ForegroundColorSpan(RED), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        s.setSpan(new ForegroundColorSpan(ctx != null ? color(ctx, PAGE_WARNING) : RED), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return s;
     }
 
@@ -306,10 +629,37 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // no dividers between rows — the section hairlines are the only lines on the page
+        // no dividers between rows — the section lines are the only lines on the page
         setDivider(null);
         setDividerHeight(0);
-        view.setBackgroundColor(BLACK);
+        view.setBackgroundColor(color(view.getContext(), PAGE_BG));
+        RecyclerView list = getListView();
+        if (list != null) {
+            // The edge glow would take the theme's colour, and the page's theme carries none.
+            list.setEdgeEffectFactory(new RecyclerView.EdgeEffectFactory() {
+                @NonNull
+                @Override
+                protected android.widget.EdgeEffect createEdgeEffect(@NonNull RecyclerView rv, int direction) {
+                    android.widget.EdgeEffect effect = new android.widget.EdgeEffect(rv.getContext());
+                    effect.setColor(color(rv.getContext(), PAGE_NOTE));
+                    return effect;
+                }
+            });
+            list.setVerticalScrollBarEnabled(false);
+        }
+        // Opened for one section (the external-apps dialog's 「Open settings」): unfold it and bring
+        // it into view. A row key works too.
+        Bundle args = getArguments();
+        String scrollTo = args != null ? args.getString(ARG_SCROLL_TO) : null;
+        if (scrollTo != null && savedInstanceState == null) {
+            Preference target = findPreference(scrollTo);
+            if (target instanceof ShiroikumaSectionCategory) {
+                jump((ShiroikumaSectionCategory) target);
+            } else if (target != null) {
+                if (target.getParent() instanceof ShiroikumaSectionCategory) ((ShiroikumaSectionCategory) target.getParent()).setOpen(true, true);
+                scrollToPreference(target);
+            }
+        }
     }
 
     // ---- house colour / size rows --------------------------------------------------------------
@@ -339,8 +689,9 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat {
         });
     }
 
+    /** The hex at the right, beside the swatch — the summary stays the row's explanation. */
     private static void showColor(@NonNull ShiroikumaPreference pref, int argb) {
-        pref.setSummary(hex(argb));
+        pref.setValueText(hex(argb));
         pref.setColor(argb);
     }
 

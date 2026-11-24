@@ -91,6 +91,8 @@ public final class ShiroikumaSelectionToolbar extends ActionMode {
         LinearLayout bar = new LinearLayout(ctx);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setBackground(ShiroikumaDialogs.menuBackground(ctx));
+        int inset = ShiroikumaDialogs.dp(ctx, 7);
+        bar.setPadding(inset, inset, inset, inset);
         mContent = bar;
 
         mPopup = new PopupWindow(bar, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, false);
@@ -111,7 +113,7 @@ public final class ShiroikumaSelectionToolbar extends ActionMode {
         LinearLayout bar = (LinearLayout) mContent;
         int ink = color(ctx, MENU_TEXT);
         int padH = ShiroikumaDialogs.dp(ctx, 16);
-        int padV = ShiroikumaDialogs.dp(ctx, 11);
+        int padV = ShiroikumaDialogs.dp(ctx, 8);
         for (int i = 0; i < mMenu.size(); i++) {
             final MenuItem item = mMenu.getItem(i);
             if (!item.isVisible()) continue;
@@ -124,15 +126,18 @@ public final class ShiroikumaSelectionToolbar extends ActionMode {
             button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             button.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
             button.setPadding(padH, padV, padH, padV);
+            // Every button is an outlined pill, never bare text; a disabled one at 38 %.
+            button.setBackground(ShiroikumaRows.pill(ctx, ink, false));
             if (item.isEnabled()) {
-                button.setBackground(new RippleDrawable(ColorStateList.valueOf(withAlpha(ink, 0x33)), null, new ColorDrawable(Color.WHITE)));
                 button.setOnClickListener(v -> {
                     if (!mFinished) mCallback.onActionItemClicked(this, item);
                 });
             } else {
-                button.setAlpha(0.4f);
+                button.setAlpha(0.38f);
             }
-            bar.addView(button);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (bar.getChildCount() > 0) lp.setMarginStart(ShiroikumaDialogs.dp(ctx, 6));
+            bar.addView(button, lp);
         }
     }
 

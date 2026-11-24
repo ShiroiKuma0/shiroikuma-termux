@@ -13,6 +13,7 @@
 
 # shiroikuma-termux (Phase 4): classes the resource XML instantiates by name.
 -keep public class com.termux.shiroikuma.ui.ShiroikumaRootView { <init>(...); }
+-keep public class com.termux.shiroikuma.ui.ShiroikumaMenuItemView { <init>(...); }
 -keep public class com.termux.shiroikuma.ui.** extends androidx.preference.Preference { <init>(...); }
 
 # shiroikuma-termux (Phase 4b): Commons Compress references three optional codecs we never ship.

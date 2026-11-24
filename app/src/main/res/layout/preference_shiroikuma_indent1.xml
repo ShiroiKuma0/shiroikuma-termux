@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- shiroikuma-termux (Phase 4, kxkb spec): item row directly under a section (72 dp) —
-     minHeight 0, 5 dp vertical padding, 16 sp yellow title, 13 sp dim summary, the widget frame
-     (colour swatch / switch) on the right. -->
+<!-- shiroikuma-termux: a row of the UI page directly under a section heading.
+     Carries no colour and no padding of its own: label, description, value, left rule, icon and
+     the press feedback are drawn in code by ShiroikumaRows from the page's colour roles, and so is
+     the row's indent (32 dp here, 48 dp for the indent2 twin). Only as tall as its content. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="?android:attr/selectableItemBackground"
-    android:minHeight="0dp"
-    android:paddingStart="72dp"
-    android:paddingLeft="72dp"
-    android:paddingEnd="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:minHeight="0dp">
 
     <LinearLayout
+        android:id="@+id/sk_text_column"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -26,16 +21,25 @@
             android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/shiroikuma_yellow"
             android:textSize="16sp" />
 
         <TextView
             android:id="@android:id/summary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/shiroikuma_yellow_dim"
             android:textSize="13sp" />
     </LinearLayout>
+
+    <!-- a short value at the right (a colour's hex), set by ShiroikumaPreference.setValueText -->
+    <TextView
+        android:id="@+id/sk_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:typeface="monospace"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@android:id/widget_frame"

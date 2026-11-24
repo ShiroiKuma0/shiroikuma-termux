@@ -13,7 +13,7 @@ import com.termux.R;
 /**
  * shiroikuma-termux (Phase 4b): the automation-token row of the Export / Import section (a port
  * of arcanechat's): tapping the row copies the token, and a "Regenerate" pill sits on the right
- * inside the row's widget frame ({@code @layout/preference_widget_regenerate}).
+ * inside the row's widget frame ({@code @layout/preference_widget_regenerate}), drawn in code.
  */
 public class AutomationTokenPreference extends ShiroikumaPreference {
 
@@ -36,6 +36,11 @@ public class AutomationTokenPreference extends ShiroikumaPreference {
         super.onBindViewHolder(holder);
         View button = holder.findViewById(R.id.automation_regenerate);
         if (button == null) return;
+        // An outlined pill from the page's roles; the layout carries no colour.
+        Context c = getContext();
+        button.setBackground(ShiroikumaRows.pill(c, ShiroikumaTheme.color(c, ShiroikumaTheme.PILL_FRAME), false));
+        if (button instanceof android.widget.TextView)
+            ((android.widget.TextView) button).setTextColor(ShiroikumaTheme.color(c, ShiroikumaTheme.PILL_TEXT));
         // the pill consumes the touch, so tapping it does not also fire the row's copy action
         button.setOnClickListener(v -> {
             if (mOnRegenerate != null) mOnRegenerate.run();

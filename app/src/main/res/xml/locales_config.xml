@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: the languages the app ships. Declared to the system (android:localeConfig,
+     Android 13+) and READ by the App language picker (AppLanguage.shippedTags), so picker and
+     declaration cannot drift apart. Add a line when a values-<tag>/ translation is added. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ja" />
+</locale-config>

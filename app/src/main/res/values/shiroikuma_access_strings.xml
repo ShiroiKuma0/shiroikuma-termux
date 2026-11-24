@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: the External apps section of the 白い熊 Termux UI page and the start-up
+     dialog shown while allow-external-apps is off (ExternalAppsAccess). Every key here has its
+     Japanese twin in values-ja/shiroikuma_access_strings.xml. -->
+<resources>
+    <string name="shiroikuma_ui_section_external">External apps</string>
+    <string name="shiroikuma_ext_hint">Other apps — 白い熊 自由作業盤 first of all — start commands in Termux through its RUN_COMMAND door. The door answers only while the switch below is on and the calling app holds the “Run commands in 白い熊 Termux environment” permission.</string>
+    <string name="shiroikuma_ext_allow">Allow external apps</string>
+    <string name="shiroikuma_ext_allow_desc">Written as allow-external-apps in %1$s.</string>
+    <string name="shiroikuma_ext_allow_confirm_title">Allow external apps?</string>
+    <string name="shiroikuma_ext_allow_confirm_body">Every app that holds the “Run commands in 白い熊 Termux environment” permission will be able to run any command as Termux, with access to all of its files. Switch this on only for apps you trust.</string>
+    <string name="shiroikuma_ext_allow_action">Allow</string>
+    <string name="shiroikuma_ext_write_failed">Could not write %1$s: %2$s</string>
+    <string name="shiroikuma_ext_warn">Warn at start while off</string>
+    <string name="shiroikuma_ext_warn_desc">Shows a dialog when Termux starts and external apps are not allowed.</string>
+    <string name="shiroikuma_ext_callers">Apps holding the permission</string>
+    <string name="shiroikuma_ext_callers_none">None</string>
+    <string name="shiroikuma_ext_battery">Battery optimisation</string>
+    <string name="shiroikuma_ext_battery_ok">Not restricted</string>
+    <string name="shiroikuma_ext_battery_bad">Restricted — a command sent while Termux is in the background may not start. Tap to lift the restriction.</string>
+    <string name="shiroikuma_ext_overlay">Display over other apps</string>
+    <string name="shiroikuma_ext_overlay_ok">Granted</string>
+    <string name="shiroikuma_ext_overlay_bad">Not granted — needed to open a terminal session from the background. Tap to grant.</string>
+    <string name="shiroikuma_ext_dialog_title">External apps are not allowed</string>
+    <string name="shiroikuma_ext_dialog_body">“allow-external-apps” is off, so other apps — 白い熊 自由作業盤 for one — cannot start commands in Termux; their requests fail with an error. It is switched on in the 白い熊 Termux UI settings, under “External apps”.</string>
+    <string name="shiroikuma_ext_dialog_open">Open settings</string>
+    <string name="shiroikuma_ext_dialog_never">Never show again</string>
+</resources>

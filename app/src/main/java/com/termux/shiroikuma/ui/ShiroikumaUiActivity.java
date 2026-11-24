@@ -26,8 +26,17 @@ import com.termux.R;
  */
 public class ShiroikumaUiActivity extends AppCompatActivity {
 
+    /** Key of the row or section the page scrolls to when it opens. */
+    public static final String EXTRA_SCROLL_TO = "com.termux.shiroikuma.ui.SCROLL_TO";
+
     public static void open(@NonNull Context context) {
+        open(context, null);
+    }
+
+    /** Opens the page scrolled to the preference {@code scrollTo} (a section key), if given. */
+    public static void open(@NonNull Context context, @Nullable String scrollTo) {
         Intent intent = new Intent(context, ShiroikumaUiActivity.class);
+        if (scrollTo != null) intent.putExtra(EXTRA_SCROLL_TO, scrollTo);
         context.startActivity(intent);
     }
 
@@ -44,6 +53,7 @@ public class ShiroikumaUiActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shiroikuma_ui);
+        applyPageColors();
         Toolbar toolbar = findViewById(com.termux.shared.R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -53,9 +63,17 @@ public class ShiroikumaUiActivity extends AppCompatActivity {
         }
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.shiroikuma_ui_container, new ShiroikumaUiFragment())
+                .replace(R.id.shiroikuma_ui_container, ShiroikumaUiFragment.newInstance(getIntent().getStringExtra(EXTRA_SCROLL_TO)))
                 .commit();
         }
+    }
+
+    /** The page's ground and bars from their roles — the layout and the theme carry no colour. */
+    public void applyPageColors() {
+        android.view.View root = findViewById(R.id.shiroikuma_ui_root);
+        if (root != null) root.setBackgroundColor(ShiroikumaTheme.color(this, ShiroikumaTheme.PAGE_BG));
+        ShiroikumaChrome.applyStatusBars(this);
+        ShiroikumaChrome.applyToolbar(this);
     }
 
     @Override

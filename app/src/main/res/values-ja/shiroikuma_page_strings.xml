@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: values/shiroikuma_page_strings.xml の日本語。キーは必ず同じ組にする。 -->
+<resources>
+    <string name="shiroikuma_page_app_settings">アプリの設定</string>
+    <string name="shiroikuma_page_app_settings_desc">Termux 本体の設定です。端末の表示、キーボード、デバッグ、プラグインを扱います。</string>
+    <string name="shiroikuma_ui_section_language">アプリの言語</string>
+    <string name="shiroikuma_lang_row">言語: %1$s</string>
+    <string name="shiroikuma_lang_row_desc">このアプリだけに適用され、すぐに切り替わります。</string>
+    <string name="shiroikuma_lang_system">システムの既定</string>
+    <string name="shiroikuma_ui_section_maintenance">保守</string>
+    <string name="shiroikuma_page_reset_order">セクションの並び順を初期化</string>
+    <string name="shiroikuma_page_reset_order_desc">このページのセクションを元の並び順に戻します。開いているか畳んであるかは変わりません。</string>
+    <string name="shiroikuma_page_reset_order_done">セクションの並び順を初期化しました</string>
+    <string name="shiroikuma_ui_section_page">このページ</string>
+    <string name="shiroikuma_page_hint">この設定ページそのものの色です。色の行を長押しすると既定に戻ります。上の索引の項目を長押しして動かすと、セクションを並べ替えられます。</string>
+    <string name="shiroikuma_page_bg">背景</string>
+    <string name="shiroikuma_page_heading">見出し</string>
+    <string name="shiroikuma_page_label">行の名前</string>
+    <string name="shiroikuma_page_note">説明と左の線</string>
+    <string name="shiroikuma_page_value">値</string>
+    <string name="shiroikuma_page_divider">セクションの間の線</string>
+    <string name="shiroikuma_page_warning">警告</string>
+    <string name="shiroikuma_page_icon">行のアイコン</string>
+    <string name="shiroikuma_page_icon_desc">表示や設定だけの行に使います。ほかのアイコンは「ダイアログ・メニュー」のアイコンの色に従います。</string>
+    <string name="shiroikuma_page_chip_frame">索引：枠</string>
+    <string name="shiroikuma_page_chip_text">索引：文字</string>
+    <string name="shiroikuma_page_swatch_frame">色見本の枠</string>
+    <string name="shiroikuma_page_slider">スライダー</string>
+    <string name="shiroikuma_page_slider_track">スライダーの溝</string>
+    <string name="shiroikuma_page_sub_section_icons">このページのセクションのアイコン</string>
+    <string name="shiroikuma_page_section_base">アプリとその設定</string>
+    <string name="shiroikuma_page_section_controls">操作するもの</string>
+    <string name="shiroikuma_page_section_words">言葉（書く・読む）</string>
+    <string name="shiroikuma_page_section_frame">枠組みと箱</string>
+    <string name="shiroikuma_page_section_reach">外とのやり取り</string>
+    <string name="shiroikuma_page_section_warning">警告（初期化・消去）</string>
+    <string name="shiroikuma_page_section_flash">一瞬の表示</string>
+    <string name="shiroikuma_ui_section_controls">ボタンとスイッチ</string>
+    <string name="shiroikuma_controls_hint">このページのボタンとスイッチです。スイッチの二色は、端末のメニューのスイッチにも使われます。</string>
+    <string name="shiroikuma_page_pill_frame">ボタンの枠</string>
+    <string name="shiroikuma_page_pill_text">ボタンの文字</string>
+    <string name="shiroikuma_page_switch_on">スイッチ（入）</string>
+    <string name="shiroikuma_page_switch_off">スイッチ（切）</string>
+</resources>
