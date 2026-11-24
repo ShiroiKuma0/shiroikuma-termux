@@ -134,7 +134,7 @@
     <string name="shiroikuma_eim_dir">Export directory</string>
     <string name="shiroikuma_eim_dir_unset">not set</string>
     <string name="shiroikuma_eim_dir_grant">All-files access not granted — tap to grant</string>
-    <string name="shiroikuma_eim_dir_unresolvable">That folder has no path this app can write (pick one on the phone’s storage or an SD card)</string>
+    <string name="shiroikuma_eim_dir_unresolvable">That directory has no path this app can write (pick one on the phone’s storage or an SD card)</string>
     <string name="shiroikuma_eim_last_title">Last export</string>
     <string name="shiroikuma_eim_warn_nodir">no directory</string>
     <string name="shiroikuma_eim_warn_none">none</string>

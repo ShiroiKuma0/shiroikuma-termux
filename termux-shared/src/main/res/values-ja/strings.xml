@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: values/strings.xml（termux-shared）の日本語訳。キーは同じ。 -->
+
+<!DOCTYPE resources [
+    <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
+    <!ENTITY TERMUX_APP_NAME "白い熊 Termux">
+    <!ENTITY TERMUX_API_APP_NAME "白い熊 Termux API">
+    <!ENTITY TERMUX_BOOT_APP_NAME "Termux:Boot">
+    <!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Float">
+    <!ENTITY TERMUX_STYLING_APP_NAME "Termux:Styling">
+    <!ENTITY TERMUX_TASKER_APP_NAME "Termux:Tasker">
+    <!ENTITY TERMUX_WIDGET_APP_NAME "Termux:Widget">
+    <!ENTITY TERMUX_PREFIX_DIR_PATH "/data/data/com.termux/files/usr">
+    ]>
+
+<resources>
+
+    <string name="msg_directory_absolute_path">%1$s ディレクトリの絶対パス：「%2$s」</string>
+
+
+
+    <!-- PackageUtils -->
+    <string name="error_app_not_installed_or_disabled_warning">%1$s（%2$s）アプリがインストールされていないか、無効になっています。</string>
+    <string name="error_get_package_context_failed_title">パッケージのコンテキストを取得できませんでした</string>
+    <string name="error_get_package_context_failed_message">「%1$s」パッケージのコンテキストを取得できませんでした。そのアプリがインストールされていないか、APK の署名がこのアプリと違うためかもしれません。</string>
+    <string name="error_get_package_context_failed_help_url_message">詳しくは %1$s をご覧ください。</string>
+    <string name="error_get_component_state_failed">コンポーネント %1$s/%2$s の状態を取得できませんでした</string>
+    <string name="error_enable_component_failed">コンポーネント %1$s/%2$s を有効にできませんでした</string>
+    <string name="error_disable_component_failed">コンポーネント %1$s/%2$s を無効にできませんでした</string>
+
+
+
+    <!-- PermissionUtils -->
+    <string name="message_sudo_please_grant_permissions">求められた権限を許可してください</string>
+    <string name="error_failed_to_request_permissions">要求コード %1$d の権限を要求できませんでした：%2$s</string>
+    <string name="error_attempted_to_check_for_permissions_not_requested">アプリのマニフェストで要求していない権限を確かめようとしました：%1$s</string>
+    <string name="error_attempted_to_ask_for_permissions_not_requested">アプリのマニフェストで要求していない権限を求めようとしました：%1$s</string>
+    <string name="error_has_not_requested_legacy_external_storage">「%1$s」パッケージは targetSdkVersion %2$d を対象とし、Android SDK %3$d で動いていますが、アプリのマニフェストで requestLegacyExternalStorage を true に設定していません</string>
+    <string name="msg_requires_dump_and_package_usage_stats_permissions">`DUMP` と `PACKAGE_USAGE_STATS` の権限が必要です</string>
+    <string name="error_display_over_other_apps_permission_not_granted">Android 10 以降で背後からアクティビティやサービスを始めるには、%1$s に「他のアプリの上に重ねて表示」の権限が必要です。Android の設定 → アプリ → %1$s → 詳細設定 → 他のアプリの上に重ねて表示 から許可してください。権限の名前は機器によって違うことがあります。たとえば Xiaomi では「バックグラウンドで実行中にポップアップウィンドウを表示」と呼ばれます。機器ごとの問題については https://dontkillmyapp.com をご覧ください。</string>
+
+
+
+    <!-- TermuxPluginUtils -->
+    <string name="error_allow_external_apps_ungranted">%1$s を使うには、`%2$s` ファイルで `allow-external-apps` を `true` に設定する必要があります。</string>
+
+
+
+    <!-- ReportActivity -->
+    <string name="title_report_text">報告の本文</string>
+    <string name="msg_report_truncated">**報告は途中までです**\n\n報告が大きすぎて、ここでは表示しきれません。オプションメニュー（右上の三点）の `ファイルに保存` を使い、外部のテキストエディタで開いてください。\n\n##\n\n</string>
+
+
+
+    <!-- ShareUtils -->
+    <string name="title_share_with">共有先</string>
+    <string name="title_open_url_with">URL を開くアプリ</string>
+    <string name="msg_storage_permission_not_granted">ストレージの権限が許可されていません。</string>
+    <string name="msg_file_saved_successfully">%1$s ファイルを「%2$s」に保存しました</string>
+
+
+
+    <!-- Shell -->
+    <string name="error_sending_sigkill_to_process">ユーザーの要求により、または Android が実行サービスを終了させようとしているため、プロセスに SIGKILL を送ります</string>
+    <string name="error_executable_unset">シェルコマンドの実行ファイルが設定されていません：「%1$s」</string>
+    <string name="error_execution_cancelled">実行サービスが終了させられるため、実行をキャンセルしました</string>
+    <string name="error_failed_to_execute_termux_session_command">Termux セッションのコマンド「%1$s」を実行できませんでした</string>
+    <string name="error_failed_to_execute_app_shell_command">アプリシェルのコマンド「%1$s」を実行できませんでした</string>
+    <string name="error_exception_received_while_executing_termux_session_command">Termux セッションのコマンド「%1$s」の実行中に例外が発生しました。\n例外：%2$s</string>
+    <string name="error_exception_received_while_executing_app_shell_command">アプリシェルのコマンド「%1$s」の実行中に例外が発生しました。\n例外：%2$s</string>
+
+
+
+    <!-- TermuxUtils -->
+    <string name="msg_report_issue">この問題を報告する場合は、オプションメニュー（右上の三点）から本文を複写し、下のいずれかのリンク先に投稿してください。\n\nTermux アプリのクラッシュ報告を投稿する場合は、クラッシュのとき何をしていたか、できれば再現の手順も書き添えてください。\n\nGitHub に投稿する場合は、その報告が属するリポジトリに投稿してください。この報告を、複写した本文やファイルではなく**（一部だけの）スクリーンショット**で添えた issue やメールは、**自動的に閉じられたり削除されたりすることがあります**。機器に固有の情報のうち、人に知られたくないもの、共有したくないもの、問題と関係のないものは、削除してもかまいません。\n\nハッキングに関する道具やスクリプトについては、いっさいサポートしません。それらについての質問は、メールでも、GitHub でも、そのほかの Termux 公式コミュニティでも、**自動的に閉じられたり削除されたりすることがあり**、**一時的または永久的な**利用禁止になることもあります。詳しくは %1$s/wiki/Hacking をご覧ください。</string>
+
+    <string name="msg_termux_app_required_by_app">%1$s アプリが Termux のコマンドを実行するには、&TERMUX_APP_NAME; が必要です。</string>
+    <string name="error_termux_app_package_context_not_accessible">&TERMUX_APP_NAME; アプリ（パッケージのコンテキスト）にアクセスできません。</string>
+    <string name="error_termux_prefix_dir_path_not_accessible">%1$s アプリから &TERMUX_APP_NAME; アプリの $PREFIX ディレクトリにアクセスできません。&TERMUX_APP_NAME; アプリをまだインストールまたは初期設定していないか、二つを別々の入手元からインストールしたために &TERMUX_APP_NAME; アプリと %1$s アプリの APK の署名が違っているのかもしれません。あるいは、&TERMUX_APP_NAME; の $PREFIX ディレクトリ「&TERMUX_PREFIX_DIR_PATH;」が存在しないか、読み取り・書き込み・実行の権限がないのかもしれません。</string>
+
+
+
+    <!-- Miscellaneous -->
+    <string name="action_yes">はい</string>
+    <string name="action_no">いいえ</string>
+    <string name="action_copy">複写</string>
+    <string name="action_share">共有</string>
+    <string name="action_cancel">キャンセル</string>
+    <string name="action_save_to_file">ファイルに保存</string>
+
+    <string name="msg_storage_permission_granted_on_request">要求したストレージの権限が許可されました</string>
+    <string name="msg_storage_permission_not_granted_on_request">要求したストレージの権限は許可されませんでした</string>
+
+
+
+    <!-- Launcher Icons -->
+    <string name="action_enable_launcher_icon">ランチャーのアイコンを有効にする</string>
+    <string name="action_disable_launcher_icon">ランチャーのアイコンを無効にする</string>
+    <string name="msg_enabling_launcher_icon">%1$s アプリのランチャーのアイコンを有効にします</string>
+    <string name="msg_disabling_launcher_icon">%1$s アプリのランチャーのアイコンを無効にします</string>
+    <string name="setting_launcher_icon_title">ランチャーのアイコンを表示</string>
+    <string name="setting_launcher_icon_enabled_off">ランチャーのアイコンを表示しません。</string>
+    <string name="setting_launcher_icon_enabled_on">ランチャーのアイコンを表示します。（既定）</string>
+
+
+
+    <!-- Log Level -->
+    <string name="log_level_title">ログレベル</string>
+    <string name="log_level_off">切</string>
+    <string name="log_level_normal">標準</string>
+    <string name="log_level_debug">デバッグ</string>
+    <string name="log_level_verbose">詳細</string>
+    <string name="log_level_unknown">*不明*</string>
+    <string name="log_level_value">logcat のログレベルを「%1$s」に設定しました</string>
+
+</resources>

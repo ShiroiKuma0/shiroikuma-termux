@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: values/termux_float_strings.xml の日本語訳。キーは同じ。 -->
+<resources>
+    <string name="float_app_name">白い熊 Termux Float</string>
+    <string name="initial_instruction_toast">ウィンドウを長押しすると、移動や大きさの変更ができます\n\n二回続けて押し、そのまま指を上下に動かすと、文字の大きさが変わります</string>
+    <string name="after_long_press">指で動かして位置を決め、二本の指でつまんで大きさを変えます</string>
+
+    <string name="draw_overlay_permission_explanation">このアプリには、他のアプリの上に重ねて表示する権限が必要です。</string>
+    <string name="grant_permission">権限を許可</string>
+
+    <string name="notification_message_visible">押すとウィンドウを隠します。</string>
+    <string name="notification_message_hidden">押すとウィンドウを表示します。</string>
+</resources>

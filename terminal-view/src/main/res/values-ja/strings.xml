@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- shiroikuma-termux: values/strings.xml（terminal-view）の日本語訳。キーは同じ。 -->
+<resources>
+  <string name="paste_text">貼り付け</string>
+  <string name="copy_text">複写</string>
+  <string name="text_selection_more">その他…</string>
+</resources>

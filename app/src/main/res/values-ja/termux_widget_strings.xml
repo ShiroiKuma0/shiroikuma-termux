@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- shiroikuma-termux: values/termux_widget_strings.xml の日本語訳。キーは同じ。 -->
+<!DOCTYPE resources [
+    <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
+    <!ENTITY TERMUX_APP_NAME "白い熊 Termux">
+    <!ENTITY TERMUX_WIDGET_APP_NAME "白い熊 Termux Widget">
+    <!ENTITY TERMUX_SHORTCUT_SCRIPTS_DIR_PATH_SHORT "~/.shortcuts/">
+    <!ENTITY TERMUX_SHORTCUT_SCRIPT_ICONS_DIR_PATH_SHORT "~/.shortcuts/icons">
+    ]>
+
+<resources>
+    <string name="plugin_api_help">プラグインの使い方について詳しくは %1$s をご覧ください。</string>
+    <string name="widget_description">&TERMUX_SHORTCUT_SCRIPTS_DIR_PATH_SHORT; のスクリプトを実行します（tasks/ の中は背後で実行）</string>
+
+    <!-- dynamic shortcuts (driven from the 白い熊 Termux UI page → Widget) -->
+    <string name="msg_created_dynamic_shortcuts_successfully">動的ショートカットを %1$d 個作成しました</string>
+    <string name="msg_removed_dynamic_shortcuts_successfully">動的ショートカットを削除しました</string>
+    <string name="msg_no_shortcut_files_found_in_directory">`%1$s` にショートカットのファイルが見つかりません</string>
+    <string name="msg_no_dynamic_shortcuts_currently_created">作成済みの動的ショートカットはありません</string>
+    <string name="msg_dynamic_shortcuts_limit_reached">ショートカットは %1$d 個までです（Android の max_shortcuts の上限）</string>
+    <string name="msg_skipping_shortcut">ショートカット `%1$s` を飛ばします</string>
+
+    <string name="msg_refresh_widget_from_app">&TERMUX_APP_NAME; UI → ウィジェット → ウィジェットを更新 を開いてください</string>
+
+    <!-- ShortcutFile -->
+    <string name="msg_shortcut_icon_file_used">`%1$s` のファイルをショートカットのアイコンに使います</string>
+
+
+
+    <!-- ShortcutUtils -->
+    <string name="error_failed_to_get_shortcut_manager">ShortcutManager を取得できませんでした</string>
+
+
+
+    <string name="title_widget">&TERMUX_APP_NAME;</string>
+    <string name="title_shortcut_widget_name">&TERMUX_WIDGET_APP_NAME;</string>
+    <string name="title_single_shortcut_name">&TERMUX_APP_NAME; のショートカット</string>
+    <string name="title_termux_shortcuts">&TERMUX_APP_NAME; のショートカット</string>
+
+    <string name="msg_no_shortcut_scripts">ファイルがありません：\n&TERMUX_SHORTCUT_SCRIPTS_DIR_PATH_SHORT;</string>
+    <string name="msg_bad_token">このショートカットは無効です。削除して、もう一度追加してください。</string>
+    <string name="msg_executing_task">タスクを実行しています：「%1$s」</string>
+    <string name="msg_executable_absolute_path">実行ファイルの絶対パス：「%1$s」</string>
+    <string name="msg_icon_absolute_path">アイコンの絶対パス：「%1$s」</string>
+    <string name="msg_request_create_pinned_shortcut">「%1$s」の固定ショートカットの作成を要求しています</string>
+    <string name="msg_request_create_static_shortcut">「%1$s」の静的ショートカットの作成を要求しています</string>
+    <string name="msg_widgets_refreshed">&TERMUX_APP_NAME; のウィジェットを更新しました：%1$s</string>
+    <string name="msg_no_widgets_found_to_refresh">更新する &TERMUX_APP_NAME; のウィジェットが見つかりません</string>
+
+    <string name="action_refresh">更新</string>
+
+    <string name="error_null_or_empty_executable">実行ファイルが指定されていないか、空です。</string>
+    <string name="error_executable_not_under_shortcuts_directories">実行ファイルは、次のディレクトリの中にあるものだけ実行できます：%1$s</string>
+    <string name="error_icon_not_under_shortcut_icons_directories">アイコンが次のディレクトリの中にありません：%1$s</string>
+    <string name="error_icon_not_a_regular_file">アイコンのファイルは通常のファイルではなく、「%1$s」です。</string>
+    <string name="error_create_pinned_shortcut_failed">「%1$s」の固定ショートカットを作成できませんでした</string>
+    <string name="error_create_static_shortcut_failed">「%1$s」の静的ショートカットを作成できませんでした</string>
+
+</resources>
