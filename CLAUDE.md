@@ -130,14 +130,14 @@ size row = default):
 
 | Section | Rows → keys |
 | --- | --- |
-| App language | first section and first chip: 「Language: ‹current›」 (main pill, ›) → `AppLanguage.showPicker` — 「System default」 first, then every tag of `res/xml/locales_config.xml` (`en`, `ja`; the manifest's `android:localeConfig`), plain rows, only the current one in a 3 dp pill. Key `app_language` (BCP-47, empty = system); see "App language" below |
+| App language | first section and first chip: 「Language: ‹current›」 (main pill, ›) → `AppLanguage.showPicker`, the settled dialog of 2026-11-27: title with the globe; 日本語 then English as two pinned full-width pills (current one 3 dp, bold, filled ring); one framed box that scrolls by itself with 「System default」 (globe) first, then the other tags of `res/xml/locales_config.xml` (`en`, `ja`; the manifest's `android:localeConfig`) — none here; Cancel pill. Every pill / row: ring · bundled flag (`res/drawable-nodpi/shiroikuma_flag_{jp,us}.png`, Noto Color Emoji; `flagOf`) · own name over country · tag; a country-less tag shows its likely country (`ja` → `ja-JP`, ICU likely subtags) while the stored tag stays as declared. A language added to the list needs its flag file + a `flagOf` case. Key `app_language` (BCP-47, empty = system); see "App language" below |
 | Export / Import | 「Export / Import…」 (the panel) · 「Export directory」 (absolute path in yellow, red "not set"; a red second line "All-files access not granted — tap to grant" while `Environment.isExternalStorageManager()` is false on API 30+ — tap opens the grant page, otherwise the SAF tree picker; long-press = the picker regardless) · 「Last export」 (newest `shiroikuma-termux_*.zip`, queried on every resume on a background thread; red "none" / "no directory") · 「Automation export」 (switch, default ON) · 「Use authorization token?」 (switch, default OFF) · token row (`AutomationTokenPreference`, visible only while the token is required; tap copies, Regenerate pill → confirm). Prefs: `shiroikuma_eximport` (`export_dir` absolute path, `export_dir_uri`), `shiroikuma_automation` (`automation_enabled`, `automation_require_token`, `automation_token`) — both device-local, all writes `commit()`, never exported |
 | External apps | hint row; 「Allow external apps」 (switch = the `allow-external-apps` line of the properties file upstream reads — first existing of `~/.termux/termux.properties`, `~/.config/termux/termux.properties`; `ExternalAppsAccess.setAllowed` replaces the line / revives a commented one / appends, through the canonical path so a symlinked file keeps its link, then reloads `TermuxAppSharedProperties`; switching ON asks first) · 「Warn at start while off」 (switch, default ON; prefs `shiroikuma_external_apps` → `warn_at_start`, device-local, never exported) · 「Apps holding the permission」 (labels from `getPackagesHoldingPermissions(com.termux.permission.RUN_COMMAND)`, our own UID left out; red "None") · 「Battery optimisation」 · 「Display over other apps」 (red while missing, tap = the grant). All re-read on every resume. Section key `section_external_apps` — `ShiroikumaUiActivity.open(ctx, key)` scrolls to it |
 | Terminal | live sample row; Colours: Background · Foreground · Cursor (picker with alpha **disabled**, written as `key=#RRGGBB` lines to `~/.termux/colors.properties` by `TerminalStyleFiles`), Colour scheme… (`terminal_scheme`, display only; the 114 termux-styling schemes + house `shiroikuma.properties` from `assets/shiroikuma/colors/`); Font: Font (`terminal_font`, display only — the truth is `~/.termux/font.ttf`; bundled `assets/shiroikuma/fonts/` + `~/.termux/fonts/*.ttf\|otf` + "Add font…" SAF import), Font size (`TermuxAppSharedPreferences.setFontSize`, px) |
 | Extra keys row | `extrakeys_bg` · `extrakeys_text` · `extrakeys_active_text` · `extrakeys_active_bg` · `extrakeys_text_size_sp` (0 = default) · `extrakeys_border_dp` · `extrakeys_border_color` · `extrakeys_corner_dp` — applied via `ExtraKeysView.setButtonColors` + an `OnHierarchyChangeListener` styling each `MaterialButton` as `reload()` adds it |
 | Drawer / sessions | `drawer_bg` · `drawer_button_text` · `drawer_icon_tint` · `session_text` · `session_selected_bg` · `session_dead_text` · `session_text_size_sp` |
 | Toolbar / status bar | `toolbar_bg` · `toolbar_text` · `toolbar_icon` · `statusbar_bg` · `navbar_bg` — Settings / Help / Report / our page via `ShiroikumaLifecycle`; TermuxActivity keeps upstream's translucent bars |
-| Dialogs / menus | `dialog_bg` · `dialog_text` · `dialog_title` · `dialog_button` · `dialog_border_color` · `dialog_border_dp` · `dialog_corner_dp`; `menu_bg` · `menu_text` · `menu_border_color` · `menu_border_dp` · `menu_corner_dp` — our own dialogs (`ShiroikumaDialogs`), the context menu (`ShiroikumaRootView` → `ShiroikumaContextMenu`; its first row 「Show side menu」 is ours and opens the sessions drawer) and the terminal's text-selection toolbar COPY · PASTE · MORE… (`ShiroikumaSelectionToolbar`, an `ActionMode` of ours with a non-focusable `PopupWindow`, injected through `TextSelectionCursorController.setFloatingActionModeFactory` from `ShiroikumaLifecycle.install` — the platform floating toolbar re-wraps the window context in `Theme.DeviceDefault` and cannot be themed); upstream's platform `AlertDialog`s get the static black/yellow `ThemeOverlay.Shiroikuma.Dialog.Platform` applied by `ShiroikumaLifecycle.onActivityCreated`, and every activity but TermuxActivity (Settings and its sub-screens, Help, About / Report, the widget's shortcut picker, the float permission page) also gets the static `ThemeOverlay.Shiroikuma.Secondary` — black ground, yellow titles, dim-yellow summaries, yellow switches |
+| Dialogs / menus | `dialog_bg` · `dialog_text` · `dialog_title` · `dialog_button` · `dialog_border_color` · `dialog_border_dp` · `dialog_corner_dp`; `menu_bg` · `menu_text` · `menu_border_color` · `menu_border_dp` · `menu_corner_dp` — our own dialogs (`ShiroikumaDialogs`), the context menu (`ShiroikumaRootView` → `ShiroikumaContextMenu`; its first row is 「白い熊 Termux UI」 (moved up from upstream's "Style" slot), its second 「Show side menu」 is ours and opens the sessions drawer) and the terminal's text-selection toolbar COPY · PASTE · MORE… (`ShiroikumaSelectionToolbar`, an `ActionMode` of ours with a non-focusable `PopupWindow`, injected through `TextSelectionCursorController.setFloatingActionModeFactory` from `ShiroikumaLifecycle.install` — the platform floating toolbar re-wraps the window context in `Theme.DeviceDefault` and cannot be themed); upstream's platform `AlertDialog`s get the static black/yellow `ThemeOverlay.Shiroikuma.Dialog.Platform` applied by `ShiroikumaLifecycle.onActivityCreated`, and every activity but TermuxActivity (Settings and its sub-screens, Help, About / Report, the widget's shortcut picker, the float permission page) also gets the static `ThemeOverlay.Shiroikuma.Secondary` — black ground, yellow titles, dim-yellow summaries, yellow switches |
 | Widget (Phase 4c) | hint row; `widget_bg` · `widget_text` · `widget_text_size_sp` (10–24, default 16) — pushed to every placed widget's `RemoteViews` via `TermuxWidgetProvider.refreshAppWidgets(ctx, ids, true)`, debounced 150 ms; actions 「Refresh widgets」 (toast with the ids / "none"), 「Create dynamic shortcuts」 / 「Remove dynamic shortcuts」 (`ShortcutUtils`, API 25+; they hang off the app's launcher icon next to the 5 static ones) |
 | Floating terminal (Phase 4c) | 「Open floating terminal」 (`startService(TermuxFloatService)`; the overlay window comes up over the page); `float_bg` · `float_border_color` · `float_border_dp` (0–4, default 1) · `float_corner_dp` (0–24, default 8) · `float_notification_text` (string; tap → `ShiroikumaDialogs.inputDialog`, empty / long-press = upstream's "Touch to hide/show window.") — each change → `TermuxFloatService.reloadStyle()` on a running window |
 | Buttons & switches | `pill_frame` · `pill_text` · `switch_on` · `switch_off` (default `#8C8C00`) — the page's pills and switches; the switch pair also draws the switch of the terminal's menu (`ShiroikumaMenus.switchDrawable`) |
@@ -158,6 +158,42 @@ pill → the UI page scrolled to the External apps section), Cancel, and a 「Ne
 bootstrap). A restore never switches the property on (the tighten-only rule below), so after a
 restore on a new phone it is switched on here by hand. Strings: `values/shiroikuma_access_strings.xml`
 with its Japanese twin in `values-ja/`.
+
+#### Trusted callers — who may run commands and restore (+012)
+
+`TrustedCallers` (`com.termux.shiroikuma.automation`): the setting 「Accept commands only from trusted
+callers」 (**default ON**) and, per app that requests `RUN_COMMAND` (or is still stored), two switches
+— 「Run commands」 and 「Restore」. Switching one on stores the package name with the SHA-256 of its
+present signing certificate. Prefs `shiroikuma_trusted` (`enforce`, `run:<pkg>`, `restore:<pkg>`),
+device-local, `commit()`, **never exported** — a restore cannot grant trust. Rows: last rows of the
+External apps section (`trusted_enforce`, `trusted_last_refusal`, the sub-heading, then
+`trusted_app:` / `trusted_run:` / `trusted_restore:` + package, built in code on every resume).
+
+**Why a provider door and not the result PendingIntent's creator:** a service start carries no
+sender, and a PendingIntent proves who made it, not who sent the request — any app with notification
+access can harvest one of 自由作業盤's and attach it. So identity comes from Binder:
+
+- `AutomationProvider.call("run_command", null, extras)` on `content://com.termux.automation` —
+  extras = the RUN_COMMAND intent's extras, same keys. Gate: the Android permission → (setting on)
+  `TrustedCallers.verifyCaller(ROLE_RUN)` by `Binder.getCallingUid()` → `allow-external-apps`. Then
+  the request is handed to `RunCommandService` with `TrustedCallers.NONCE` (per process). Answers
+  `OK:accepted` / `ERROR:permission not granted` / `ERROR:caller not trusted: <pkg>` /
+  `ERROR:caller certificate changed: <pkg>` / `ERROR:caller unknown` / `ERROR:allow-external-apps is
+  off` / `ERROR:no command path` / `ERROR:cannot start: <Class>`. Callers detect the method by the
+  manifest `<meta-data shiroikuma.automation.run_command = 1>`.
+- `RunCommandService` (one hook before the allow-external-apps check): setting on → refuses every
+  intent without the nonce, so the `startService` door is shut to outsiders — **also to `am
+  startservice` from Termux's own shell**. Setting off → upstream's behaviour, byte for byte.
+- `TermuxOpenReceiver$ContentProvider.openFile` (one hook): a `RUN_COMMAND` holder could WRITE any
+  file under Termux's files; setting on → access without a URI grant for that file and mode needs
+  `ROLE_RUN` (`termux-open`'s read grants to viewers keep working).
+- `AutomationProvider` `import`: setting on → also needs `ROLE_RESTORE` (on top of the pinned
+  `AutomationCallers`), else `ERROR:caller not trusted for restore: <pkg>`. So on a fresh install
+  応用管理 can restore only after its 「Restore」 switch is on.
+- `FileReceiverActivity.handleUrlAndFinish`: setting on → asks before running `~/bin/termux-url-opener`.
+
+Refusals: `files/shiroikuma/trusted-callers-refused.txt` (time TAB door TAB caller TAB reason, capped
+at 256 KB; never `*.log`); the newest shows in the 「Last refusal」 row.
 
 Action rows of the page (App settings, Language, Export / Import…, Battery optimisation and Display
 over other apps — the grant while missing, the system's page of it once given —, Refresh widgets,

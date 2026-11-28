@@ -23,4 +23,23 @@
     <string name="shiroikuma_ext_dialog_body">「allow-external-apps」が切になっているため、他のアプリ（白い熊 自由作業盤など）は Termux でコマンドを実行できず、その要求は失敗します。白い熊 Termux UI 設定の「外部アプリ」で入れられます。</string>
     <string name="shiroikuma_ext_dialog_open">設定を開く</string>
     <string name="shiroikuma_ext_dialog_never">今後は表示しない</string>
+    <string name="shiroikuma_trusted_enforce">信頼する呼び出し元からのコマンドだけを受け付ける</string>
+    <string name="shiroikuma_trusted_enforce_desc">下で入にしたアプリだけが、コマンドの実行やデータの復元を行えます。それ以外のアプリからの要求は、権限を持っていても拒否して記録します。</string>
+    <string name="shiroikuma_trusted_off_title">すべてのアプリからコマンドを受け付けますか？</string>
+    <string name="shiroikuma_trusted_off_body">権限を持つすべてのアプリが、再び Termux としてコマンドを実行できるようになり、下の一覧は参照されなくなります。</string>
+    <string name="shiroikuma_trusted_off_action">受け付ける</string>
+    <string name="shiroikuma_trusted_last">最後の拒否</string>
+    <string name="shiroikuma_trusted_last_none">なし</string>
+    <string name="shiroikuma_trusted_sub">信頼する呼び出し元</string>
+    <string name="shiroikuma_trusted_none">権限を求めているアプリは入っていません。</string>
+    <string name="shiroikuma_trusted_run">コマンドの実行</string>
+    <string name="shiroikuma_trusted_restore">復元</string>
+    <string name="shiroikuma_trusted_cert_changed">署名の証明書が変わったため拒否しています。新しい証明書を受け入れるには、いったん切にしてから入れ直してください。</string>
+    <string name="shiroikuma_trusted_cert_unreadable">%1$s の署名の証明書を読み取れません。</string>
+    <string name="shiroikuma_trusted_not_installed">入っていません</string>
+    <string name="shiroikuma_trusted_permission_missing">Android の権限が与えられていません</string>
+    <string name="shiroikuma_trusted_service_refused">このコマンドは拒否されました。「信頼する呼び出し元からのコマンドだけを受け付ける」が入になっており、要求が信頼された入口を通っていません。信頼するアプリは、白い熊 Termux UI 設定の「外部アプリ」で選べます。</string>
+    <string name="shiroikuma_trusted_opener_title">URL を開くスクリプトを実行しますか？</string>
+    <string name="shiroikuma_trusted_opener_body">~/bin/termux-url-opener を次の引数で実行します：\n\n%1$s</string>
+    <string name="shiroikuma_trusted_opener_run">実行</string>
 </resources>

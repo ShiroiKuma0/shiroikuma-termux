@@ -3,16 +3,25 @@ package com.termux.shiroikuma.automation;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.os.Process;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.termux.R;
+import com.termux.app.RunCommandService;
+import com.termux.shared.termux.TermuxConstants;
+import com.termux.shared.termux.TermuxConstants.TERMUX_APP.RUN_COMMAND_SERVICE;
+import com.termux.shared.termux.plugins.TermuxPluginUtils;
 import com.termux.shiroikuma.backup.TermuxBackup;
 
 import org.json.JSONArray;
@@ -42,6 +51,8 @@ public class AutomationProvider extends ContentProvider {
     public static final String METHOD_EXPORT = "export";
     public static final String METHOD_IMPORT = "import";
     public static final String METHOD_CANCEL = "cancel";
+    /** The trusted door of RUN_COMMAND — see {@link TrustedCallers}. */
+    public static final String METHOD_RUN_COMMAND = "run_command";
 
     public static final String KEY_RESULT = "result";
     public static final String KEY_FD = "fd";
@@ -76,6 +87,10 @@ public class AutomationProvider extends ContentProvider {
         if (ctx == null) return fail("ERROR:not ready");
         ctx = ctx.getApplicationContext();
 
+        // The command door has a gate of its own (the Android permission, the Trusted callers
+        // list, allow-external-apps) — not the backup contract's pinned pair and token.
+        if (METHOD_RUN_COMMAND.equals(method)) return runCommand(ctx, extras);
+
         // WHO, before WHAT.
         String refusedCaller = AutomationCallers.verify(ctx, getCallingPackage());
         if (refusedCaller != null) return fail(refusedCaller);
@@ -84,12 +99,69 @@ public class AutomationProvider extends ContentProvider {
 
         if (METHOD_DESCRIBE.equals(method)) return ok(describe(ctx));
         if (METHOD_EXPORT.equals(method)) return start(ctx, extras, false);
-        if (METHOD_IMPORT.equals(method)) return start(ctx, extras, true);
+        if (METHOD_IMPORT.equals(method)) {
+            // A restore can plant scripts: while the setting is on it needs the "Restore" switch too.
+            if (TrustedCallers.isEnforced(ctx)) {
+                String untrusted = TrustedCallers.verifyCaller(ctx, getCallingPackage(), TrustedCallers.ROLE_RESTORE);
+                if (untrusted != null) {
+                    TrustedCallers.trace(ctx, "import", TrustedCallers.callerName(ctx, getCallingPackage()), untrusted.substring("ERROR:".length()));
+                    return fail(untrusted);
+                }
+            }
+            return start(ctx, extras, true);
+        }
         if (METHOD_CANCEL.equals(method)) {
             AutomationJobs.cancel(extras == null ? null : extras.getString(KEY_JOB_ID));
             return ok("OK:cancelled");
         }
         return fail("ERROR:unknown method: " + method);
+    }
+
+    /**
+     * {@code run_command}: the extras of a RUN_COMMAND intent, same keys and types, from a caller
+     * the kernel names. {@code OK:accepted} = handed to {@link RunCommandService} (the command's
+     * result travels through the result PendingIntent as ever); {@code ERROR:…} = nothing was run
+     * and the PendingIntent is not sent. With the setting off any holder of the permission is
+     * accepted, as at the service door.
+     */
+    @NonNull
+    private Bundle runCommand(@NonNull Context ctx, @Nullable Bundle extras) {
+        final String door = "run_command";
+        try {
+            String declared = getCallingPackage();
+            boolean own = Binder.getCallingUid() == Process.myUid();
+            if (!own && ctx.checkCallingPermission(TermuxConstants.PERMISSION_RUN_COMMAND) != PackageManager.PERMISSION_GRANTED) {
+                TrustedCallers.trace(ctx, door, TrustedCallers.callerName(ctx, declared), "permission not granted");
+                return fail("ERROR:permission not granted");
+            }
+            if (TrustedCallers.isEnforced(ctx)) {
+                String untrusted = TrustedCallers.verifyCaller(ctx, declared, TrustedCallers.ROLE_RUN);
+                if (untrusted != null) {
+                    TrustedCallers.trace(ctx, door, TrustedCallers.callerName(ctx, declared), untrusted.substring("ERROR:".length()));
+                    return fail(untrusted);
+                }
+            }
+            if (TermuxPluginUtils.checkIfAllowExternalAppsPolicyIsViolated(ctx, "AutomationProvider") != null) {
+                return fail("ERROR:allow-external-apps is off");
+            }
+            String path = extras == null ? null : extras.getString(RUN_COMMAND_SERVICE.EXTRA_COMMAND_PATH);
+            if (path == null || path.isEmpty()) return fail("ERROR:no command path");
+
+            Intent intent = new Intent(RUN_COMMAND_SERVICE.ACTION_RUN_COMMAND);
+            intent.setClass(ctx, RunCommandService.class);
+            intent.putExtras(extras);
+            intent.putExtra(TrustedCallers.EXTRA_NONCE, TrustedCallers.NONCE); // after putExtras: the caller cannot set it
+            long token = Binder.clearCallingIdentity();
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ctx.startForegroundService(intent);
+                else ctx.startService(intent);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+            return ok("OK:accepted");
+        } catch (Throwable t) {
+            return fail("ERROR:cannot start: " + t.getClass().getSimpleName());
+        }
     }
 
     /** The header, returned from the call and never put inside the archive. */

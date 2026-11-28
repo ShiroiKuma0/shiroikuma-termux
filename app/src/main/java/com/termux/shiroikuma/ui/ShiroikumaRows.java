@@ -91,6 +91,8 @@ public final class ShiroikumaRows {
         {"external_apps_callers", ICON_PERSON, CONTACT},
         {"external_apps_battery", ICON_BATTERY, CONNECT},
         {"external_apps_overlay", ICON_LAYERS, VIEW},
+        {"trusted_enforce", ICON_LOCK, BLOCK},
+        {"trusted_last_refusal", ICON_CLOCK, BLOCK},
         {"terminal_scheme", ICON_GRID, VIEW},
         {"terminal_font_size", ICON_SIZE, VIEW},
         {"terminal_font", ICON_TEXT, VIEW},
@@ -109,6 +111,10 @@ public final class ShiroikumaRows {
     private static int[] spec(@Nullable String key) {
         if (key == null) return new int[]{ICON_DOT, VIEW};
         for (Object[] k : KEYS) if (key.equals(k[0])) return new int[]{(Integer) k[1], (Integer) k[2]};
+        // the Trusted callers list: one block per app, keyed by its package
+        if (key.startsWith("trusted_app:")) return new int[]{ICON_PERSON, CONTACT};
+        if (key.startsWith("trusted_run:")) return new int[]{ICON_TERMINAL, CONNECT};
+        if (key.startsWith("trusted_restore:")) return new int[]{ICON_EXPORT, SHARE};
         int role = key.startsWith("menu_icon_") || key.equals(MENU_DELETE) || key.startsWith("section_")
             || key.startsWith("switch_") || key.equals(PAGE_WARNING) || key.equals(SESSION_DEAD_TEXT) ? OWN : VIEW;
         int icon;

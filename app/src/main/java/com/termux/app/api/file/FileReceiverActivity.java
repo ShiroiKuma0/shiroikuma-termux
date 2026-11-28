@@ -50,6 +50,9 @@ public class FileReceiverActivity extends AppCompatActivity {
      */
     boolean mFinishOnDismissNameDialog = true;
 
+    /** shiroikuma-termux: the question before the URL opener runs (see handleUrlAndFinish). */
+    private boolean mUrlOpenerAsked, mUrlOpenerConfirmed;
+
     private static final String API_TAG = TermuxConstants.TERMUX_APP_NAME + "FileReceiver";
 
     private static final String LOG_TAG = "FileReceiverActivity";
@@ -239,6 +242,22 @@ public class FileReceiverActivity extends AppCompatActivity {
         // Do this for the user if necessary:
         //noinspection ResultOfMethodCallIgnored
         urlOpenerProgramFile.setExecutable(true);
+
+        // shiroikuma-termux: any app can share a URL to this activity — while "Accept commands only
+        // from trusted callers" is on, the opener script runs only after a yes.
+        if (!mUrlOpenerConfirmed && com.termux.shiroikuma.automation.TrustedCallers.isEnforced(this)) {
+            if (mUrlOpenerAsked) return; // a second onResume while the question is up
+            mUrlOpenerAsked = true;
+            MessageDialogUtils.showMessage(this, getString(R.string.shiroikuma_trusted_opener_title),
+                getString(R.string.shiroikuma_trusted_opener_body, url),
+                getString(R.string.shiroikuma_trusted_opener_run), (dialog, which) -> {
+                    mUrlOpenerConfirmed = true;
+                    handleUrlAndFinish(url);
+                },
+                getString(android.R.string.cancel), (dialog, which) -> finish(),
+                dialog -> finish());
+            return;
+        }
 
         final Uri urlOpenerProgramUri = UriUtils.getFileUri(URL_OPENER_PROGRAM);
 

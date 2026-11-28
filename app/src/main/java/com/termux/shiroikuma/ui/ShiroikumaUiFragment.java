@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.os.Build;
@@ -41,6 +42,7 @@ import com.termux.app.activities.SettingsActivity;
 import com.termux.shiroikuma.AppLanguage;
 import com.termux.shiroikuma.ExternalAppsAccess;
 import com.termux.shiroikuma.automation.AutomationAuth;
+import com.termux.shiroikuma.automation.TrustedCallers;
 import com.termux.shiroikuma.backup.ExportDir;
 import com.termux.shiroikuma.backup.TermuxBackup;
 import com.termux.shiroikuma.ui.TerminalStyleFiles.FontOption;
@@ -126,7 +128,7 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat implements Sh
     };
     /** Rows whose summary is a value (a path, a name, a list), not an explanation. */
     private static final String[] VALUE_ROW_KEYS = {
-        "export_dir", "last_export", "automation_token", "external_apps_callers",
+        "export_dir", "last_export", "automation_token", "external_apps_callers", "trusted_last_refusal",
         "terminal_scheme", "terminal_font", "float_notification_text",
     };
 
@@ -386,6 +388,26 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat implements Sh
             });
         }
 
+        final SwitchPreferenceCompat enforce = findPreference("trusted_enforce");
+        if (enforce != null) {
+            enforce.setChecked(TrustedCallers.isEnforced(ctx));
+            enforce.setOnPreferenceChangeListener((p, value) -> {
+                if (Boolean.TRUE.equals(value)) {
+                    TrustedCallers.setEnforced(ctx, true);
+                    return true;
+                }
+                // Opening the door to every holder of the permission is confirmed.
+                Activity activity = getActivity();
+                if (activity == null) return false;
+                ShiroikumaDialogs.confirmDialog(activity, getString(R.string.shiroikuma_trusted_off_title),
+                    getString(R.string.shiroikuma_trusted_off_body), getString(R.string.shiroikuma_trusted_off_action), () -> {
+                        TrustedCallers.setEnforced(ctx, false);
+                        enforce.setChecked(false);
+                    });
+                return false;
+            });
+        }
+
         // Two pills: the grant while it is missing, the system's own page of it once given.
         ShiroikumaPreference battery = findPreference("external_apps_battery");
         if (battery != null) battery.setOnPreferenceClickListener(p -> {
@@ -446,6 +468,8 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat implements Sh
                 : android.text.TextUtils.join("\n", labels));
         }
 
+        refreshTrustedRows();
+
         ShiroikumaPreference battery = findPreference("external_apps_battery");
         if (battery != null) battery.setSummary(PermissionUtils.checkIfBatteryOptimizationsDisabled(ctx)
             ? getString(R.string.shiroikuma_ext_battery_ok) : red(getString(R.string.shiroikuma_ext_battery_bad)));
@@ -453,6 +477,83 @@ public class ShiroikumaUiFragment extends PreferenceFragmentCompat implements Sh
         ShiroikumaPreference overlay = findPreference("external_apps_overlay");
         if (overlay != null) overlay.setSummary(PermissionUtils.checkDisplayOverOtherAppsPermission(ctx)
             ? getString(R.string.shiroikuma_ext_overlay_ok) : red(getString(R.string.shiroikuma_ext_overlay_bad)));
+    }
+
+    // ---- Trusted callers: one block per app that requests RUN_COMMAND ---------------------------
+
+    private final List<Preference> mTrustedRows = new java.util.ArrayList<>();
+
+    /** Rebuilt on every resume: an app may have been installed, removed or re-signed meanwhile. */
+    private void refreshTrustedRows() {
+        final Context ctx = getContext();
+        ShiroikumaSectionCategory section = findPreference(ShiroikumaSectionCategory.KEY_PREFIX + "external_apps");
+        if (ctx == null || section == null) return;
+
+        SwitchPreferenceCompat enforce = findPreference("trusted_enforce");
+        if (enforce != null) enforce.setChecked(TrustedCallers.isEnforced(ctx));
+
+        ShiroikumaPreference last = findPreference("trusted_last_refusal");
+        if (last != null) {
+            String line = TrustedCallers.lastRefusal(ctx);
+            last.setSummary(line != null ? red(line) : getString(R.string.shiroikuma_trusted_last_none));
+        }
+
+        for (Preference row : mTrustedRows) section.removePreference(row);
+        mTrustedRows.clear();
+
+        List<String> packages = TrustedCallers.candidates(ctx);
+        Preference none = findPreference("trusted_none");
+        if (none != null) ShiroikumaSectionCategory.setWanted(none, packages.isEmpty());
+
+        PackageManager pm = ctx.getPackageManager();
+        for (final String pkg : packages) {
+            CharSequence label = pkg;
+            boolean installed = true;
+            try {
+                label = pm.getApplicationInfo(pkg, 0).loadLabel(pm);
+            } catch (PackageManager.NameNotFoundException e) {
+                installed = false;
+            }
+            ShiroikumaPreference app = new ShiroikumaPreference(ctx);
+            app.setKey("trusted_app:" + pkg);
+            app.setTitle(label);
+            android.text.SpannableStringBuilder info = new android.text.SpannableStringBuilder(pkg);
+            if (!installed) info.append("\n").append(red(getString(R.string.shiroikuma_trusted_not_installed)));
+            else if (pm.checkPermission(TermuxConstants.PERMISSION_RUN_COMMAND, pkg) != PackageManager.PERMISSION_GRANTED)
+                info.append("\n").append(red(getString(R.string.shiroikuma_trusted_permission_missing)));
+            app.setSummary(info);
+            addTrustedRow(section, app, false);
+            addTrustedRow(section, trustedSwitch(ctx, pkg, label, TrustedCallers.ROLE_RUN, "trusted_run:", R.string.shiroikuma_trusted_run), true);
+            addTrustedRow(section, trustedSwitch(ctx, pkg, label, TrustedCallers.ROLE_RESTORE, "trusted_restore:", R.string.shiroikuma_trusted_restore), true);
+        }
+    }
+
+    private void addTrustedRow(@NonNull ShiroikumaSectionCategory section, @NonNull Preference row, boolean selectable) {
+        row.setLayoutResource(R.layout.preference_shiroikuma_indent2);
+        row.setPersistent(false);
+        row.setSelectable(selectable);
+        section.addPreference(row);
+        mTrustedRows.add(row);
+    }
+
+    @NonNull
+    private SwitchPreferenceCompat trustedSwitch(@NonNull final Context ctx, @NonNull final String pkg, @NonNull final CharSequence label,
+                                                 @NonNull final String role, @NonNull String keyPrefix, int title) {
+        final SwitchPreferenceCompat row = new SwitchPreferenceCompat(ctx);
+        row.setKey(keyPrefix + pkg);
+        row.setTitle(title);
+        row.setChecked(TrustedCallers.isListed(ctx, pkg, role));
+        if (TrustedCallers.certificateChanged(ctx, pkg, role)) row.setSummary(red(getString(R.string.shiroikuma_trusted_cert_changed)));
+        row.setOnPreferenceChangeListener((p, value) -> {
+            boolean on = Boolean.TRUE.equals(value);
+            if (!TrustedCallers.setListed(ctx, pkg, role, on)) {
+                Toast.makeText(ctx, getString(R.string.shiroikuma_trusted_cert_unreadable, label), Toast.LENGTH_LONG).show();
+                return false;
+            }
+            row.setSummary(null); // switched on = the present certificate; switched off = nothing to warn of
+            return true;
+        });
+        return row;
     }
 
     // ---- Export / Import (Phase 4b) --------------------------------------------------------------

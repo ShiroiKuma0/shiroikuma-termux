@@ -138,7 +138,7 @@ public final class AutomationCallers {
      * of which matches" is a question about key rotation that nothing in this family needs to answer.
      */
     @SuppressWarnings("deprecation")
-    private static String signingSha256(Context context, String pkg) {
+    static String signingSha256(Context context, String pkg) {
         try {
             PackageManager pm = context.getPackageManager();
             Signature[] certs;

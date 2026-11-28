@@ -257,6 +257,11 @@
         <meta-data
             android:name="shiroikuma.automation.contract"
             android:value="2" />
+        <!-- The provider answers "run_command" (the trusted door of RUN_COMMAND, TrustedCallers):
+             a caller reads this before choosing between the provider call and startService. -->
+        <meta-data
+            android:name="shiroikuma.automation.run_command"
+            android:value="1" />
         <meta-data
             android:name="shiroikuma.automation.format"
             android:value="1" />

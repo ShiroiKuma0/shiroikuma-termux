@@ -25,4 +25,23 @@
     <string name="shiroikuma_ext_dialog_body">“allow-external-apps” is off, so other apps — 白い熊 自由作業盤 for one — cannot start commands in Termux; their requests fail with an error. It is switched on in the 白い熊 Termux UI settings, under “External apps”.</string>
     <string name="shiroikuma_ext_dialog_open">Open settings</string>
     <string name="shiroikuma_ext_dialog_never">Never show again</string>
+    <string name="shiroikuma_trusted_enforce">Accept commands only from trusted callers</string>
+    <string name="shiroikuma_trusted_enforce_desc">Only the apps switched on below may run commands or restore data. A request from any other app is refused and recorded, even when the app holds the permission.</string>
+    <string name="shiroikuma_trusted_off_title">Accept commands from any app?</string>
+    <string name="shiroikuma_trusted_off_body">Every app that holds the permission will be able to run commands as Termux again, and the list below will no longer be asked.</string>
+    <string name="shiroikuma_trusted_off_action">Accept</string>
+    <string name="shiroikuma_trusted_last">Last refusal</string>
+    <string name="shiroikuma_trusted_last_none">None</string>
+    <string name="shiroikuma_trusted_sub">Trusted callers</string>
+    <string name="shiroikuma_trusted_none">No installed app requests the permission.</string>
+    <string name="shiroikuma_trusted_run">Run commands</string>
+    <string name="shiroikuma_trusted_restore">Restore</string>
+    <string name="shiroikuma_trusted_cert_changed">Signing certificate changed — refused. Switch off and on again to accept the new one.</string>
+    <string name="shiroikuma_trusted_cert_unreadable">Cannot read the signing certificate of %1$s.</string>
+    <string name="shiroikuma_trusted_not_installed">Not installed</string>
+    <string name="shiroikuma_trusted_permission_missing">Android permission not granted</string>
+    <string name="shiroikuma_trusted_service_refused">This command was refused: “Accept commands only from trusted callers” is on and the request did not come through the trusted door. Trusted apps are chosen in the 白い熊 Termux UI settings, under “External apps”.</string>
+    <string name="shiroikuma_trusted_opener_title">Run the URL opener?</string>
+    <string name="shiroikuma_trusted_opener_body">~/bin/termux-url-opener will be run with:\n\n%1$s</string>
+    <string name="shiroikuma_trusted_opener_run">Run</string>
 </resources>

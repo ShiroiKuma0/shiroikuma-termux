@@ -124,6 +124,14 @@ public class RunCommandService extends Service {
         executionCommand.isPluginExecutionCommand = true;
         executionCommand.resultConfig.resultPendingIntent = intent.getParcelableExtra(RUN_COMMAND_SERVICE.EXTRA_PENDING_INTENT);
 
+        // shiroikuma-termux: while "Accept commands only from trusted callers" is on, only a request
+        // handed on by AutomationProvider.run_command (a caller the kernel named) is run.
+        if (com.termux.shiroikuma.automation.TrustedCallers.refuseService(this, intent)) {
+            executionCommand.setStateFailed(Errno.ERRNO_FAILED.getCode(), this.getString(R.string.shiroikuma_trusted_service_refused));
+            TermuxPluginUtils.processPluginExecutionCommandError(this, LOG_TAG, executionCommand, true);
+            return stopService();
+        }
+
         // If "allow-external-apps" property to not set to "true", then just return
         // We enable force notifications if "allow-external-apps" policy is violated so that the
         // user knows someone tried to run a command in termux context, since it may be malicious

@@ -216,6 +216,21 @@ public class TermuxOpenReceiver extends BroadcastReceiver {
                     throw new IllegalArgumentException(errmsg);
                 }
 
+                // shiroikuma-termux: a holder of RUN_COMMAND could otherwise write any file here
+                // (.bashrc, $PREFIX/bin) — while "Accept commands only from trusted callers" is on,
+                // access without a URI grant for this file and mode (what termux-open hands a
+                // viewer) needs the caller's "Run commands" switch.
+                Context context = getContext();
+                if (context != null) {
+                    boolean writes = mode.contains("w") || mode.contains("a") || mode.contains("t");
+                    int flags = writes ? android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION : android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                    boolean granted = context.checkCallingUriPermission(uri, flags) == android.content.pm.PackageManager.PERMISSION_GRANTED;
+                    if (!granted) {
+                        String refused = com.termux.shiroikuma.automation.TrustedCallers.refuseFileAccess(context, callingPackageName, path, mode);
+                        if (refused != null) throw new SecurityException(refused);
+                    }
+                }
+
                 // **DO NOT** allow these files to be modified by ContentProvider exposed to external
                 // apps, since they may silently modify the values for security properties like
                 // TermuxConstants.PROP_ALLOW_EXTERNAL_APPS set by users without their explicit consent.

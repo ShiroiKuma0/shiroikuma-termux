@@ -185,6 +185,31 @@
             android:title="@string/shiroikuma_ext_overlay"
             app:skOpens="true"
             android:persistent="false" />
+        <!-- Trusted callers (TrustedCallers): the setting, the newest refusal, then one block per
+             app — added in code under the sub-heading, so these stay the section's last rows. -->
+        <SwitchPreferenceCompat
+            android:key="trusted_enforce"
+            android:title="@string/shiroikuma_trusted_enforce"
+            android:summary="@string/shiroikuma_trusted_enforce_desc"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="trusted_last_refusal"
+            android:title="@string/shiroikuma_trusted_last"
+            android:layout="@layout/preference_shiroikuma_indent1"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:title="@string/shiroikuma_trusted_sub"
+            android:layout="@layout/preference_shiroikuma_subheader"
+            android:selectable="false"
+            android:persistent="false" />
+        <com.termux.shiroikuma.ui.ShiroikumaPreference
+            android:key="trusted_none"
+            android:summary="@string/shiroikuma_trusted_none"
+            android:layout="@layout/preference_shiroikuma_indent2"
+            android:selectable="false"
+            android:persistent="false" />
     </com.termux.shiroikuma.ui.ShiroikumaSectionCategory>
 
     <com.termux.shiroikuma.ui.ShiroikumaSectionCategory
