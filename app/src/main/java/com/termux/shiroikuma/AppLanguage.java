@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -27,6 +28,7 @@ import androidx.core.os.LocaleListCompat;
 import com.termux.R;
 import com.termux.shared.logger.Logger;
 import com.termux.shiroikuma.ui.ShiroikumaDialogs;
+import com.termux.shiroikuma.ui.ShiroikumaIcons;
 import com.termux.shiroikuma.ui.ShiroikumaRows;
 import com.termux.shiroikuma.ui.ShiroikumaTheme;
 
@@ -184,85 +186,78 @@ public final class AppLanguage {
     // ---- the picker -----------------------------------------------------------------------------
 
     /**
-     * The single-choice list in the family's settled look: 「System default」 first, then every
-     * shipped language, sorted by name — each row a selection ring, the language's own name with
-     * its country beneath in dim gold where the tag has one, and the tag in dim-gold monospace in
-     * a right-aligned column. Rows are plain; only the current one sits in a full-width 3 dp pill
-     * with its name bold. A 1 px hairline between rows, none beside the pill. Choosing a row
-     * applies it at once and closes the list; one regular Cancel pill.
+     * The single-choice dialog in the family's settled form (2026-11-27). Top to bottom: the title
+     * with the globe; 日本語, then English, as two full-width outlined pills that never scroll
+     * (the current one 3 dp and bold with a filled mark, the other 1.25 dp; both thin when the
+     * current language is neither); one framed, rounded box that scrolls by itself, with 「System
+     * default」 as its first row and every other listed language after it, sorted by its own name
+     * — plain rows with 1 px hairlines, the current one in a thick pill; one regular Cancel pill.
+     * Each pill and row: selection ring, flag (a bundled image; a globe for 「System default」 and
+     * for a language with no country), the language's own name with its country beneath in dim
+     * gold, and the tag in dim-gold monospace in a right-aligned column. A language declared
+     * without a country shows the flag, country and tag of its likely country ({@code ja} →
+     * {@code ja-JP}); what is stored and applied stays the declared tag.
      */
     public static void showPicker(@NonNull final Activity activity) {
         final String current = tag(activity);
-        List<String> shipped = shippedTags(activity);
-        Collections.sort(shipped, (a, b) -> nameOf(a).compareToIgnoreCase(nameOf(b)));
-        final List<String> tags = new ArrayList<>();
-        tags.add("");
-        tags.addAll(shipped);
-        if (!current.isEmpty() && !tags.contains(current)) tags.add(current);
+        List<String> rest = shippedTags(activity);
+        String japanese = takePinned(rest, "ja", "JP");
+        String english = takePinned(rest, "en", "US");
+        if (!current.isEmpty() && !current.equals(japanese) && !current.equals(english) && !rest.contains(current)) rest.add(current);
+        Collections.sort(rest, (a, b) -> nameOf(a).compareToIgnoreCase(nameOf(b)));
+        rest.add(0, ""); // 「System default」: the only way back from a chosen language
 
-        LinearLayout box = ShiroikumaDialogs.infoBox(activity, activity.getString(R.string.shiroikuma_ui_section_language), null);
-        final AlertDialog dialog = ShiroikumaDialogs.panel(activity, box, true);
-
-        int text = ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_TEXT);
-        int note = ShiroikumaTheme.color(activity, ShiroikumaTheme.PAGE_NOTE);
-        int off = ShiroikumaTheme.color(activity, ShiroikumaTheme.SWITCH_OFF);
         int frame = ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_BUTTON);
         int divider = ShiroikumaTheme.color(activity, ShiroikumaTheme.PAGE_DIVIDER);
 
+        LinearLayout box = ShiroikumaDialogs.infoBox(activity, activity.getString(R.string.shiroikuma_ui_section_language), null);
+        if (box.getChildCount() > 0 && box.getChildAt(0) instanceof TextView) {
+            ShiroikumaRows.labelIcon((TextView) box.getChildAt(0), ShiroikumaIcons.ICON_GLOBE,
+                ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_TITLE), false, 0, 18);
+        }
+
+        // Our own window instead of ShiroikumaDialogs.panel: that one scrolls as a whole, and here
+        // only the box in the middle may scroll.
+        android.widget.FrameLayout holder = new android.widget.FrameLayout(activity);
+        int m = ShiroikumaDialogs.dp(activity, 10);
+        holder.setPadding(m, m, m, m);
+        holder.addView(box, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final AlertDialog dialog = new AlertDialog.Builder(activity).setView(holder).create();
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        ShiroikumaDialogs.transparentWindow(dialog);
+
+        // ---- the pinned pair
+        boolean first = true;
+        for (String tag : new String[]{japanese, english}) {
+            if (tag == null) continue;
+            boolean isCurrent = tag.equals(current);
+            View row = row(activity, dialog, tag, current);
+            row.setBackground(ShiroikumaRows.pill(activity, frame, isCurrent));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.topMargin = ShiroikumaDialogs.dp(activity, first ? 12 : 6);
+            box.addView(row, lp);
+            first = false;
+        }
+
+        // ---- the box that scrolls by itself
         LinearLayout list = new LinearLayout(activity);
         list.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams listLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        listLp.topMargin = ShiroikumaDialogs.dp(activity, 12);
-        box.addView(list, listLp);
-
-        for (int i = 0; i < tags.size(); i++) {
-            final String tag = tags.get(i);
+        for (int i = 0; i < rest.size(); i++) {
+            String tag = rest.get(i);
             boolean isCurrent = tag.equals(current);
-            boolean previousIsCurrent = i > 0 && tags.get(i - 1).equals(current);
+            boolean previousIsCurrent = i > 0 && rest.get(i - 1).equals(current);
             if (i > 0 && !isCurrent && !previousIsCurrent) {
                 View line = new View(activity);
                 line.setBackgroundColor(divider);
                 LinearLayout.LayoutParams lineLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1);
-                lineLp.setMarginStart(ShiroikumaDialogs.dp(activity, 46)); // inset to the text
+                lineLp.setMarginStart(ShiroikumaDialogs.dp(activity, 14));
                 lineLp.setMarginEnd(ShiroikumaDialogs.dp(activity, 14));
                 list.addView(line, lineLp);
             }
-
-            LinearLayout row = new LinearLayout(activity);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPaddingRelative(ShiroikumaDialogs.dp(activity, 14), ShiroikumaDialogs.dp(activity, 9), ShiroikumaDialogs.dp(activity, 14), ShiroikumaDialogs.dp(activity, 9));
-            row.setBackground(isCurrent ? ShiroikumaRows.pill(activity, frame, true) : ShiroikumaRows.rowRipple(text));
-
-            ImageView ring = new ImageView(activity);
-            ring.setImageDrawable(ring(activity, isCurrent ? frame : off, isCurrent));
-            row.addView(ring, new LinearLayout.LayoutParams(ShiroikumaDialogs.dp(activity, 20), ShiroikumaDialogs.dp(activity, 20)));
-
-            LinearLayout names = new LinearLayout(activity);
-            names.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams namesLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            namesLp.setMarginStart(ShiroikumaDialogs.dp(activity, 12));
-            TextView name = ShiroikumaDialogs.text(activity, tag.isEmpty() ? activity.getString(R.string.shiroikuma_lang_system) : nameOf(tag), 16, text, isCurrent);
-            names.addView(name);
-            Locale locale = tag.isEmpty() ? null : Locale.forLanguageTag(tag);
-            String country = locale == null ? "" : locale.getDisplayCountry(locale);
-            if (!country.isEmpty()) names.addView(ShiroikumaDialogs.text(activity, country, 13, note, false));
-            row.addView(names, namesLp);
-
-            if (!tag.isEmpty()) {
-                TextView tagView = ShiroikumaDialogs.text(activity, tag, 13, note, false);
-                tagView.setTypeface(Typeface.MONOSPACE);
-                tagView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-                tagView.setGravity(Gravity.END);
-                LinearLayout.LayoutParams tagLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                tagLp.setMarginStart(ShiroikumaDialogs.dp(activity, 10));
-                row.addView(tagView, tagLp);
-            }
-
-            row.setOnClickListener(v -> {
-                dialog.dismiss();
-                if (!tag.equals(current)) set(activity, tag);
-            });
+            View row = row(activity, dialog, tag, current);
+            row.setBackground(isCurrent ? ShiroikumaRows.pill(activity, frame, true)
+                : ShiroikumaRows.rowRipple(ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_TEXT)));
             LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             if (isCurrent) {
                 rowLp.topMargin = ShiroikumaDialogs.dp(activity, 3);
@@ -270,11 +265,130 @@ public final class AppLanguage {
             }
             list.addView(row, rowLp);
         }
+        android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
+        android.graphics.drawable.GradientDrawable boxFrame = new android.graphics.drawable.GradientDrawable();
+        boxFrame.setColor(0);
+        boxFrame.setCornerRadius(ShiroikumaDialogs.dp(activity, 12));
+        boxFrame.setStroke(Math.max(1, Math.round(1.25f * activity.getResources().getDisplayMetrics().density)),
+            ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_BORDER_COLOR));
+        scroll.setBackground(boxFrame);
+        scroll.setClipToOutline(true);
+        int pad = ShiroikumaDialogs.dp(activity, 4);
+        scroll.setPadding(pad, pad, pad, pad);
+        scroll.addView(list, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        // height 0 + weight: as tall as its rows, and the one part that gives way on a short screen
+        LinearLayout.LayoutParams scrollLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        scrollLp.topMargin = ShiroikumaDialogs.dp(activity, 10);
+        box.addView(scroll, scrollLp);
 
         LinearLayout buttons = ShiroikumaDialogs.buttonRow(activity);
         ShiroikumaDialogs.addPill(buttons, ShiroikumaDialogs.pill(activity, activity.getString(android.R.string.cancel), v -> dialog.dismiss()));
         box.addView(buttons);
         dialog.show();
+    }
+
+    /**
+     * Takes the one listed tag of {@code language} out of {@code tags} for the pinned pair: the
+     * variant of {@code country} when there are several, else the first; {@code null} when the app
+     * does not list the language.
+     */
+    @Nullable
+    private static String takePinned(@NonNull List<String> tags, @NonNull String language, @NonNull String country) {
+        String found = null;
+        for (String tag : tags) {
+            Locale locale = Locale.forLanguageTag(tag);
+            if (!language.equals(locale.getLanguage())) continue;
+            if (found == null || country.equals(locale.getCountry())) found = tag;
+        }
+        if (found != null) tags.remove(found);
+        return found;
+    }
+
+    /** {@code tag} with its likely country filled in ({@code ja} → {@code ja-JP}) — for display only. */
+    @NonNull
+    private static Locale shownLocale(@NonNull String tag) {
+        Locale locale = Locale.forLanguageTag(tag);
+        if (!locale.getCountry().isEmpty()) return locale;
+        String country = "";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                country = android.icu.util.ULocale.addLikelySubtags(android.icu.util.ULocale.forLocale(locale)).getCountry();
+            } catch (RuntimeException e) {
+                // the short table below
+            }
+        }
+        if (country.isEmpty()) {
+            if ("ja".equals(locale.getLanguage())) country = "JP";
+            else if ("en".equals(locale.getLanguage())) country = "US";
+        }
+        // "001" and the like: a language without a sensible country (Esperanto) keeps the globe
+        return country.length() == 2 ? new Locale(locale.getLanguage(), country) : locale;
+    }
+
+    /** The bundled flag (Noto Color Emoji) of a listed language's country; 0 = the globe. */
+    private static int flagOf(@NonNull String country) {
+        switch (country) {
+            case "JP":
+                return R.drawable.shiroikuma_flag_jp;
+            case "US":
+                return R.drawable.shiroikuma_flag_us;
+            default:
+                return 0;
+        }
+    }
+
+    /** One pill or row, without its background: ring · flag · name over country · tag. */
+    @NonNull
+    private static View row(@NonNull final Activity activity, @NonNull final AlertDialog dialog, @NonNull final String tag, @NonNull final String current) {
+        boolean isCurrent = tag.equals(current);
+        int text = ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_TEXT);
+        int note = ShiroikumaTheme.color(activity, ShiroikumaTheme.PAGE_NOTE);
+        int off = ShiroikumaTheme.color(activity, ShiroikumaTheme.SWITCH_OFF);
+        int frame = ShiroikumaTheme.color(activity, ShiroikumaTheme.DIALOG_BUTTON);
+        Locale shown = tag.isEmpty() ? null : shownLocale(tag);
+
+        LinearLayout row = new LinearLayout(activity);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPaddingRelative(ShiroikumaDialogs.dp(activity, 14), ShiroikumaDialogs.dp(activity, 9), ShiroikumaDialogs.dp(activity, 14), ShiroikumaDialogs.dp(activity, 9));
+
+        ImageView ring = new ImageView(activity);
+        ring.setImageDrawable(ring(activity, isCurrent ? frame : off, isCurrent));
+        row.addView(ring, new LinearLayout.LayoutParams(ShiroikumaDialogs.dp(activity, 20), ShiroikumaDialogs.dp(activity, 20)));
+
+        ImageView flag = new ImageView(activity);
+        int flagRes = shown == null ? 0 : flagOf(shown.getCountry());
+        if (flagRes != 0) flag.setImageResource(flagRes);
+        else flag.setImageDrawable(ShiroikumaIcons.ofPx(ShiroikumaIcons.ICON_GLOBE, text, ShiroikumaDialogs.dp(activity, 22)));
+        flag.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        LinearLayout.LayoutParams flagLp = new LinearLayout.LayoutParams(ShiroikumaDialogs.dp(activity, 30), ShiroikumaDialogs.dp(activity, 22));
+        flagLp.setMarginStart(ShiroikumaDialogs.dp(activity, 12));
+        row.addView(flag, flagLp);
+
+        LinearLayout names = new LinearLayout(activity);
+        names.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams namesLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        namesLp.setMarginStart(ShiroikumaDialogs.dp(activity, 12));
+        names.addView(ShiroikumaDialogs.text(activity, tag.isEmpty() ? activity.getString(R.string.shiroikuma_lang_system) : nameOf(tag), 16, text, isCurrent));
+        String country = shown == null ? "" : shown.getDisplayCountry(shown);
+        if (!country.isEmpty()) names.addView(ShiroikumaDialogs.text(activity, country, 13, note, false));
+        row.addView(names, namesLp);
+
+        if (shown != null) {
+            TextView tagView = ShiroikumaDialogs.text(activity, shown.toLanguageTag(), 13, note, false);
+            tagView.setTypeface(Typeface.MONOSPACE);
+            tagView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            tagView.setGravity(Gravity.END);
+            LinearLayout.LayoutParams tagLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            tagLp.setMarginStart(ShiroikumaDialogs.dp(activity, 10));
+            row.addView(tagView, tagLp);
+        }
+
+        row.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (!tag.equals(current)) set(activity, tag);
+        });
+        return row;
     }
 
     /** The selection mark of a row: a ring, with a dot inside on the current row. */
