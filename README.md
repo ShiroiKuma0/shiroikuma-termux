@@ -10,7 +10,7 @@ A fork of [Termux](https://github.com/termux/termux-app) with **major additions*
 
 Installs **over** the stock Termux (app id `com.termux` kept so the Termux package ecosystem keeps working); the whole family — Termux, Termux API, Termux X11, Termux GUI and 白い熊 GNU Emacs — shares Android UID `com.termux` and is signed with one key, so every member must come from these forks.
 
-**📥 Latest release: [`0.118.0+2026-09-11.22-27.g45844885+013`](https://github.com/ShiroiKuma0/shiroikuma-termux/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-termux/releases)
+**📥 Latest release: [`0.118.0+2026-09-11.22-27.g45844885+014`](https://github.com/ShiroiKuma0/shiroikuma-termux/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-termux/releases)
 
 </div>
 
@@ -29,7 +29,7 @@ The page is a **folding accordion under a chip index**: a row of small chips, on
 - **Extra keys row** — background, text, active colours, text size, border and corner radius, applied to every button as the row is rebuilt.
 - **Drawer / sessions** — drawer background, button text, icon tint, session text, selected-session background, dead-session text, text size.
 - **Toolbar / status bar** — the toolbar, status-bar and navigation-bar colours of Settings, Help, Report and our own page.
-- **Dialogs / menus** — background, text, title, button and border/corner styling for our dialogs, the terminal's context menu and the text-selection toolbar (COPY · PASTE · MORE…, replaced by one of ours because the platform's cannot be themed); upstream's platform dialogs and the Settings screens get the black-and-yellow overlay too.
+- **Dialogs / menus** — background, text, title, button and border/corner styling for our dialogs, the terminal's context menu and the text-selection toolbar (COPY · PASTE · MORE…, replaced by one of ours because the platform's cannot be themed); the context menu also carries a switch, **Extra keys row**, that hides and shows the extra keys above the keyboard; upstream's platform dialogs and the Settings screens get the black-and-yellow overlay too.
 - **Widget** and **Floating terminal** — the absorbed plugins' colours and frames, restyled on every placed widget and on a running floating window.
 - **This page** and **Buttons & switches** — the colours of the page itself, every item a role of its own.
 - Long-press any colour or size row to return it to the house default; **Maintenance** holds *Reset section order* and *Reset all to defaults*.

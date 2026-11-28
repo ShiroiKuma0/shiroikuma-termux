@@ -4,6 +4,14 @@ This file carries the history of **白い熊 Termux** — 白い熊's fork of [T
 
 Versions are `<upstream version>+<upstream base date>.<HH-MM>.g<sha8>+<NNN>`: `custom` is rebased onto every commit of upstream's `master`, and the pin names the upstream commit the release is built on; `versionCode` = upstream code × 10000 + N. Every release section states its upstream base, then what is built on top of stock; sections after the first are per-release deltas and carry an "Upstream since" subsection distilled from the sync(s) that moved the base.
 
+## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+014 — 2026-11-28
+
+Built on the same upstream base as +013 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180014`. Changes since +013:
+
+### UI & theming
+- **The terminal's menu hides and shows the extra keys.** The long-press menu has a new switch, 「Extra keys row」 (「追加キーの行」), directly under 「Keep screen on」. It removes the rows of extra keys above the keyboard (ESC, CTRL, ALT, the arrows …) and brings them back — with a keyboard that carries these keys itself, the rows only cost a fifth of the screen. Until now this was reachable only by Ctrl+Alt+K / Volume Up+K and by a long press on the drawer's KEYBOARD button.
+- The switch sets upstream's own preference, so the choice is **remembered across restarts** and stays in step with the key combination and the drawer's long press.
+
 ## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+013 — 2026-11-28
 
 Built on the same upstream base as +011 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180013`. Changes since +011 (build +012 was not released; +013 is +012 plus the menu order):
