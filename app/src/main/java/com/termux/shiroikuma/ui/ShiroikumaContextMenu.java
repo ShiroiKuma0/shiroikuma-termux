@@ -68,8 +68,14 @@ public final class ShiroikumaContextMenu implements ContextMenu {
         box.setBackground(ShiroikumaDialogs.menuBackground(ctx));
 
         final AlertDialog dialog = ShiroikumaDialogs.panel(activity, box, true);
+        // 「白い熊 Termux UI」 is the menu's first row (白い熊, 2026-11-28); the rest keep upstream's order.
+        final java.util.List<MenuItem> items = new java.util.ArrayList<>();
         for (int i = 0; i < menu.size(); i++) {
-            final MenuItem item = menu.getItem(i);
+            MenuItem item = menu.getItem(i);
+            if (item.getItemId() == ShiroikumaMenus.CONTEXT_UI_PAGE) items.add(0, item);
+            else items.add(item);
+        }
+        for (final MenuItem item : items) {
             if (!item.isVisible()) continue;
             if (box.getChildCount() > 0 && ShiroikumaMenus.contextGroupStart(item.getItemId())) box.addView(divider(ctx));
             View row = row(ctx, item);

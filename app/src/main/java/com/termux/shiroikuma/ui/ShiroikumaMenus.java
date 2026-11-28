@@ -133,7 +133,7 @@ public final class ShiroikumaMenus {
 
     /** True for the rows of the context menu that start a new group (a divider goes above them). */
     static boolean contextGroupStart(int id) {
-        return id == CONTEXT_RESET_TERMINAL || id == CONTEXT_UI_PAGE || id == CONTEXT_KEEP_SCREEN_ON || id == CONTEXT_HELP;
+        return id == CONTEXT_RESET_TERMINAL || id == CONTEXT_KEEP_SCREEN_ON || id == CONTEXT_HELP;
     }
 
     /**
