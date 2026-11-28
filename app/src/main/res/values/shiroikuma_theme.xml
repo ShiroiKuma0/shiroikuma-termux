@@ -12,6 +12,8 @@
     <!-- ShiroikumaContextMenu's own first row (opens the sessions drawer); a resource id so it can
          never collide with TermuxActivity's small-integer CONTEXT_MENU_* ids. -->
     <item name="shiroikuma_menu_show_drawer" type="id" />
+    <!-- Its switch 「Extra keys row」 (hides / shows the extra keys above the keyboard). -->
+    <item name="shiroikuma_menu_extra_keys" type="id" />
 
     <!-- ShiroikumaSeekBarPreference: [skMin, skMax] plus, when skZeroLabel is set, one extra step
          at the left that stores 0 and reads as that label ("default"). -->

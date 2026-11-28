@@ -44,6 +44,12 @@ import com.termux.app.TermuxActivity;
  * that an edge swipe has to fight gesture navigation for. It is added before upstream fills the
  * menu (same order {@code NONE}, so it sorts first) and handled here, not by
  * {@code onContextItemSelected}.
+ *
+ * <p>A second row is ours too: 「Extra keys row」, a switch under 「Keep screen on」 that hides and
+ * shows the rows of extra keys above the keyboard (白い熊, 2026-11-28). It is upstream's own toggle
+ * ({@code TermuxActivity.toggleTerminalToolbar()}, until now reachable only by Ctrl+Alt+K /
+ * Volume Up+K and a long press on the drawer's KEYBOARD button) and upstream's own preference
+ * ({@code show_terminal_toolbar}), so the state is remembered across restarts.
  */
 public final class ShiroikumaContextMenu implements ContextMenu {
 
@@ -57,8 +63,10 @@ public final class ShiroikumaContextMenu implements ContextMenu {
     public static boolean show(@NonNull final TermuxActivity activity, @NonNull View anchor) {
         final ShiroikumaContextMenu menu = new ShiroikumaContextMenu(new PopupMenu(activity, anchor).getMenu());
         final MenuItem showDrawer = menu.add(Menu.NONE, R.id.shiroikuma_menu_show_drawer, Menu.NONE, R.string.shiroikuma_menu_show_drawer);
+        final MenuItem extraKeys = menu.add(Menu.NONE, R.id.shiroikuma_menu_extra_keys, Menu.NONE, R.string.shiroikuma_ui_section_extrakeys)
+            .setCheckable(true).setChecked(activity.getPreferences().shouldShowTerminalToolbar());
         activity.onCreateContextMenu(menu, anchor, null);
-        if (menu.size() <= 1) return false; // upstream added nothing (no session yet): stay silent, as before
+        if (menu.size() <= 2) return false; // upstream added nothing (no session yet): stay silent, as before
 
         final Context ctx = activity;
 
@@ -72,9 +80,16 @@ public final class ShiroikumaContextMenu implements ContextMenu {
         final java.util.List<MenuItem> items = new java.util.ArrayList<>();
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
+            if (item == extraKeys) continue;
             if (item.getItemId() == ShiroikumaMenus.CONTEXT_UI_PAGE) items.add(0, item);
             else items.add(item);
         }
+        // 「Extra keys row」 goes under the other switch, 「Keep screen on」 (at the end should upstream drop it).
+        int extraKeysAt = items.size();
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getItemId() == ShiroikumaMenus.CONTEXT_KEEP_SCREEN_ON) extraKeysAt = i + 1;
+        }
+        items.add(extraKeysAt, extraKeys);
         for (final MenuItem item : items) {
             if (!item.isVisible()) continue;
             if (box.getChildCount() > 0 && ShiroikumaMenus.contextGroupStart(item.getItemId())) box.addView(divider(ctx));
@@ -84,6 +99,7 @@ public final class ShiroikumaContextMenu implements ContextMenu {
                     // selection first, then close — shareSelectedText() needs the stored selection
                     // that onContextMenuClosed() clears.
                     if (item == showDrawer) activity.getDrawer().openDrawer(Gravity.START);
+                    else if (item == extraKeys) activity.toggleTerminalToolbar();
                     else activity.onContextItemSelected(item);
                     dialog.dismiss();
                 });

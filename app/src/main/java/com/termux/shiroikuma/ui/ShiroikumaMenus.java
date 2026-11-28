@@ -64,7 +64,7 @@ public final class ShiroikumaMenus {
 
     // TermuxActivity's context-menu item ids. They are private constants there, so the values are
     // repeated here (upstream names in the comments); the UI-page row sits in upstream's "Style"
-    // slot. Our own first row has a resource id (R.id.shiroikuma_menu_show_drawer).
+    // slot. Our own rows have resource ids (R.id.shiroikuma_menu_show_drawer, _extra_keys).
     static final int CONTEXT_SELECT_URL = 0;          // CONTEXT_MENU_SELECT_URL_ID
     static final int CONTEXT_SHARE_TRANSCRIPT = 1;    // CONTEXT_MENU_SHARE_TRANSCRIPT_ID
     static final int CONTEXT_AUTOFILL_PASSWORD = 2;   // CONTEXT_MENU_AUTOFILL_PASSWORD
@@ -102,6 +102,7 @@ public final class ShiroikumaMenus {
     @NonNull
     static Spec contextSpec(int id) {
         if (id == R.id.shiroikuma_menu_show_drawer) return new Spec(ICON_MENU, ROLE_VIEW, false, false);
+        if (id == R.id.shiroikuma_menu_extra_keys) return new Spec(ICON_KEYBOARD, ROLE_VIEW, false, false);
         switch (id) {
             case CONTEXT_SELECT_URL:
                 return new Spec(ICON_LINK, ROLE_VIEW, true, false);
