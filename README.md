@@ -6,11 +6,11 @@
 
 **The Termux terminal and Linux environment, with its plugins folded in, styled from one page, and backed up whole.**
 
-A fork of [Termux](https://github.com/termux/termux-app) with **major additions**: the **白い熊 Termux UI** page (colours, schemes and fonts with live preview — Termux:Styling absorbed — plus the extra keys, drawer, toolbar, dialogs and menus), **Export / Import** that backs up the entire prefix (`~` and `$PREFIX` as tars inside one zip, restorable into a fresh install), the sister-app **backup-automation contract**, a **full Japanese translation** with an in-app language choice, an **External apps** switch for the `RUN_COMMAND` door, and **Termux:Boot, Termux:Widget and Termux:Float absorbed** into the app — the floating terminal is a long-press away on the launcher icon.
+A fork of [Termux](https://github.com/termux/termux-app) with **major additions**: the **白い熊 Termux UI** page (colours, schemes and fonts with live preview — Termux:Styling absorbed — plus the extra keys, drawer, toolbar, dialogs and menus), **Export / Import** that backs up the entire prefix (`~` and `$PREFIX` as tars inside one zip, restorable into a fresh install), the sister-app **backup-automation contract**, a **full Japanese translation** with an in-app language choice, an **External apps** switch for the `RUN_COMMAND` door with a **Trusted callers** list that decides which apps may run commands, and **Termux:Boot, Termux:Widget and Termux:Float absorbed** into the app — the floating terminal is a long-press away on the launcher icon.
 
 Installs **over** the stock Termux (app id `com.termux` kept so the Termux package ecosystem keeps working); the whole family — Termux, Termux API, Termux X11, Termux GUI and 白い熊 GNU Emacs — shares Android UID `com.termux` and is signed with one key, so every member must come from these forks.
 
-**📥 Latest release: [`0.118.0+2026-09-11.22-27.g45844885+011`](https://github.com/ShiroiKuma0/shiroikuma-termux/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-termux/releases)
+**📥 Latest release: [`0.118.0+2026-09-11.22-27.g45844885+013`](https://github.com/ShiroiKuma0/shiroikuma-termux/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-termux/releases)
 
 </div>
 
@@ -24,6 +24,7 @@ The page is a **folding accordion under a chip index**: a row of small chips, on
 
 - **App language** — System default, English or 日本語, for this app only; the whole app is translated.
 - **External apps** — `allow-external-apps` as a switch, with the apps that hold the `RUN_COMMAND` permission and the grants that door needs; a dialog at start says so while it is off.
+- **Trusted callers** — the `RUN_COMMAND` permission is one tap for any app; with 「Accept commands only from trusted callers」 (on by default) only the apps you switch on — 「Run commands」 and 「Restore」, each pinned to its signing certificate — get through, by a provider call where the system names the caller. Refusals are recorded.
 - **Terminal** — background, foreground and cursor pickers (a four-slider ARGB picker with recent swatches), a **Colour scheme** list with all 114 termux-styling schemes plus the house black-and-yellow one, a **Font** list with its own glyph preview (Cascadia Code, Fantasque Sans Mono, Fira Code and Meslo bundled; *Add font…* imports any `.ttf`/`.otf` into `~/.termux/fonts`), and a font-size slider. Everything is written to Termux's own `~/.termux/colors.properties` and `font.ttf`, so the terminal itself stays stock.
 - **Extra keys row** — background, text, active colours, text size, border and corner radius, applied to every button as the row is rebuilt.
 - **Drawer / sessions** — drawer background, button text, icon tint, session text, selected-session background, dead-session text, text size.

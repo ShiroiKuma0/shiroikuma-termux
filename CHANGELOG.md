@@ -4,6 +4,26 @@ This file carries the history of **白い熊 Termux** — 白い熊's fork of [T
 
 Versions are `<upstream version>+<upstream base date>.<HH-MM>.g<sha8>+<NNN>`: `custom` is rebased onto every commit of upstream's `master`, and the pin names the upstream commit the release is built on; `versionCode` = upstream code × 10000 + N. Every release section states its upstream base, then what is built on top of stock; sections after the first are per-release deltas and carry an "Upstream since" subsection distilled from the sync(s) that moved the base.
 
+## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+013 — 2026-11-28
+
+Built on the same upstream base as +011 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180013`. Changes since +011 (build +012 was not released; +013 is +012 plus the menu order):
+
+### Major features
+- **Trusted callers — only chosen apps may run commands in Termux or restore its data.** The `RUN_COMMAND` permission is a one-tap grant for any app that asks, which is not enough once a command in Termux can lead further. The new setting 「Accept commands only from trusted callers」 (UI page → External apps, **on by default**; switching it off asks first) puts a list in front of the door: every installed app that requests the permission appears with two switches, 「Run commands」 and 「Restore」, both off until switched on. Switching one on stores the app's package name and the SHA-256 of its signing certificate; a re-signed app is refused, with a red note, until it is switched off and on again.
+- **A new door that knows its caller.** A trusted app sends its command with `ContentResolver.call()` on `content://com.termux.automation`, method `run_command`, with the same extras as a `RUN_COMMAND` intent. There the system names the caller, and Termux checks its package and certificate against the list; the answer is `OK:accepted` or `ERROR:<reason>`, and the command's result still travels through the result PendingIntent. The manifest declares `shiroikuma.automation.run_command = 1` so a caller can tell the method exists. The Android permission and `allow-external-apps` are still required.
+- **The old door is shut while the setting is on.** `RunCommandService` (reached by `startService`, which carries no sender) refuses every request that did not come through the provider. The creator of a result PendingIntent is deliberately not accepted as proof of identity: another app can obtain one. With the setting off, the service behaves exactly as upstream's.
+
+### Fixes & behaviour
+- **The files provider no longer lets any permission holder write Termux's files.** `content://com.termux.files` allowed a holder of `RUN_COMMAND` to open any file under Termux's files for writing (`.bashrc`, `$PREFIX/bin`). While the setting is on, opening a file without a URI grant for it needs the caller's 「Run commands」 switch; what `termux-open` hands a viewer keeps working through its grant.
+- **Restore needs the 「Restore」 switch** while the setting is on (`import` of the automation provider, on top of its pinned callers): `ERROR:caller not trusted for restore: <package>`. The list is kept on the device and never exported, so a restore cannot grant trust — on a fresh install the switch is set once before a restore from another app.
+- **A shared URL asks first.** While the setting is on, sharing a URL to Termux asks before `~/bin/termux-url-opener` runs.
+- **Refusals are recorded** in `files/shiroikuma/trusted-callers-refused.txt` (time, door, caller, reason); the newest is shown in the 「Last refusal」 row.
+- Known limit: with the setting on, `am startservice … RUN_COMMAND` from Termux's own shell is refused too.
+
+### UI & theming
+- **App language dialog in its new form**: the title with a globe; 日本語, then English, as two full-width pills that never scroll (the current one thick and bold); under them a framed box that scrolls by itself, with 「System default」 first; Cancel. Every pill and row shows a flag (bundled images from Noto Color Emoji), the language's own name over its country, and the tag — `ja` is shown as `ja-JP`, `en` as `en-US`.
+- **「白い熊 Termux UI」 is the first row of the terminal's menu**, above 「Show side menu」.
+
 ## 白い熊 Termux 0.118.0+2026-09-11.22-27.g45844885+011 — 2026-11-24
 
 Built on the same upstream base as +008 — **termux/termux-app `master` at [`45844885`](https://github.com/termux/termux-app/commit/4584488513c099f2e98bcfcd00f006d213248729)** (no sync since; no upstream changes to report). `versionCode 1180011`. Changes since +008 (builds +009 and +010 were not released; +010 crashed on opening the UI page, fixed here):
